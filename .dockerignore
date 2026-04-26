@@ -1,0 +1,11 @@
+.git
+.gitignore
+.idea
+.claude
+.DS_Store
+README.md
+memory
+scripts
+assets/maps
+node_modules
+*.log
