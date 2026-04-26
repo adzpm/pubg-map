@@ -9,11 +9,11 @@ const SUBDIV = 10;
 const MAPS = [
     {id: 'erangel', name: 'Erangel', cells: {x: 8, y: 8}},
     {id: 'miramar', name: 'Miramar', cells: {x: 8, y: 8}},
-    {id: 'sanhok',  name: 'Sanhok',  cells: {x: 4, y: 4}},
-    {id: 'deston',  name: 'Deston',  cells: {x: 8, y: 8}},
-    {id: 'rondo',   name: 'Rondo',   cells: {x: 8, y: 8}},
+    {id: 'sanhok', name: 'Sanhok', cells: {x: 4, y: 4}},
+    {id: 'deston', name: 'Deston', cells: {x: 8, y: 8}},
+    {id: 'rondo', name: 'Rondo', cells: {x: 8, y: 8}},
     {id: 'karakin', name: 'Karakin', cells: {x: 2, y: 2}},
-    {id: 'paramo',  name: 'Paramo',  cells: {x: 3, y: 3}},
+    {id: 'paramo', name: 'Paramo', cells: {x: 3, y: 3}},
 ];
 
 const SECRET_ROOMS = {
@@ -21,11 +21,11 @@ const SECRET_ROOMS = {
         {x: 1379, y: 1815, name: '...'},
     ],
     miramar: [],
-    sanhok:  [],
-    deston:  [],
-    rondo:   [],
+    sanhok: [],
+    deston: [],
+    rondo: [],
     karakin: [],
-    paramo:  [],
+    paramo: [],
 };
 
 const computeMaxNativeZoom = (w, h) => Math.ceil(Math.log2(Math.max(w, h) / TILE_SIZE));
@@ -41,7 +41,7 @@ const buildGridLayer = (cells, w, h, toLL) => {
     const cw = w / cells.x;
     const ch = h / cells.y;
 
-    const subStyle  = {color: '#fff', weight: 1, opacity: 0.15, interactive: false, className: 'pubg-grid-subline'};
+    const subStyle = {color: '#fff', weight: 1, opacity: 0.15, interactive: false, className: 'pubg-grid-subline'};
     const mainStyle = {color: '#fff', weight: 1, opacity: 0.30, interactive: false, className: 'pubg-grid-line'};
 
     for (let i = 0; i < cells.x; i++) {
@@ -162,7 +162,7 @@ createApp({
     setup() {
         const currentMap = ref(MAPS[0]);
         const gridVisible = ref(true);
-        const secretsVisible = ref(false);
+        const secretsVisible = ref(true);
         const cursor = ref({visible: false, px: 0, py: 0, cell: ''});
 
         let map = null;

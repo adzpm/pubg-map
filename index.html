@@ -13,16 +13,17 @@
 <div id="app">
     <nav class="navbar navbar-dark bg-dark px-3 py-2 flex-shrink-0">
         <span class="navbar-brand mb-0 h1">
-            <i class="bi bi-map-fill me-2"></i>PUBG Map
+            <i class="bi bi-map-fill me-3"></i>
+            <span class="text-light">pubg-map</span>
         </span>
         <div class="d-flex align-items-center gap-3">
             <div class="form-check form-switch text-light mb-0">
                 <input class="form-check-input" type="checkbox" role="switch" id="gridSwitch" v-model="gridVisible">
-                <label class="form-check-label" for="gridSwitch">Сетка</label>
+                <label class="form-check-label" for="gridSwitch">Grid</label>
             </div>
             <div class="form-check form-switch text-light mb-0">
                 <input class="form-check-input" type="checkbox" role="switch" id="secretsSwitch" v-model="secretsVisible">
-                <label class="form-check-label" for="secretsSwitch">Secret rooms</label>
+                <label class="form-check-label" for="secretsSwitch">Secrets</label>
             </div>
             <div class="dropdown">
             <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -45,18 +46,22 @@
 
     <div id="map" class="map-viewport"></div>
 
-    <div class="map-status bg-dark text-light px-3 py-1 d-flex gap-4 align-items-center small flex-shrink-0">
+    <div class="map-status bg-dark text-light px-3 py-1 d-flex gap-4 align-items-center small flex-shrink-0 font-monospace">
         <template v-if="cursor.visible">
-            <span class="font-monospace">
+            <span class="d-flex gap-2">
                 <span class="text-secondary">Cell:</span>
                 <strong>{{ cursor.cell }}</strong>
             </span>
-            <span class="font-monospace">
-                <span class="text-secondary">X:</span> {{ cursor.px }}
-                <span class="text-secondary ms-2">Y:</span> {{ cursor.py }}
+            <span class="d-flex gap-2">
+                <span class="text-secondary">X:</span>
+                <strong>{{ cursor.px }}</strong>
+            </span>
+            <span class="d-flex gap-2">
+                <span class="text-secondary">Y:</span>
+                <strong>{{ cursor.py }}</strong>
             </span>
         </template>
-        <span v-else class="text-secondary">наведи курсор на карту</span>
+        <span v-else class="text-secondary">...</span>
     </div>
 </div>
 
