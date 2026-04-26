@@ -1,0 +1,22 @@
+# IDE - JetBrains
+.idea/
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor backups
+*~
+*.swp
+*.swo
+
+# VIPS metadata
+vips-properties.xml
+
+# Logs
+*.log
+npm-debug.log*
