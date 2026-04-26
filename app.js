@@ -8,24 +8,26 @@ const SUBDIV = 10;
 
 const MAPS = [
     {id: 'erangel', name: 'Erangel', cells: {x: 8, y: 8}},
+    {id: 'taego', name: 'Taego', cells: {x: 8, y: 8}},
     {id: 'miramar', name: 'Miramar', cells: {x: 8, y: 8}},
-    {id: 'sanhok', name: 'Sanhok', cells: {x: 4, y: 4}},
     {id: 'deston', name: 'Deston', cells: {x: 8, y: 8}},
     {id: 'rondo', name: 'Rondo', cells: {x: 8, y: 8}},
-    {id: 'karakin', name: 'Karakin', cells: {x: 2, y: 2}},
+    {id: 'sanhok', name: 'Sanhok', cells: {x: 4, y: 4}},
     {id: 'paramo', name: 'Paramo', cells: {x: 3, y: 3}},
+    {id: 'karakin', name: 'Karakin', cells: {x: 2, y: 2}},
 ];
 
 const SECRET_ROOMS = {
     erangel: [
         {x: 1379, y: 1815, name: '...'},
     ],
+    taego: [],
     miramar: [],
-    sanhok: [],
     deston: [],
     rondo: [],
-    karakin: [],
+    sanhok: [],
     paramo: [],
+    karakin: [],
 };
 
 const computeMaxNativeZoom = (w, h) => Math.ceil(Math.log2(Math.max(w, h) / TILE_SIZE));
