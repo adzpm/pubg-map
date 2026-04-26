@@ -1,43 +1,95 @@
 const {createApp, ref, watch, onMounted, onBeforeUnmount} = Vue;
 
-const MAPS = [
-    {id: 'erangel', name: 'Erangel', cells: {x: 8, y: 8}, file: 'Erangel_Main_High_Res1.png'},
-    {id: 'miramar', name: 'Miramar', cells: {x: 8, y: 8}, file: 'Miramar_Main_High_Res2.png'},
-    {id: 'sanhok', name: 'Sanhok', cells: {x: 4, y: 4}, file: 'Sanhok_Main_High_Res3.png'},
-    {id: 'deston', name: 'Deston', cells: {x: 8, y: 8}, file: 'Deston_Main_High_Res4.png'},
-    {id: 'rondo', name: 'Rondo', cells: {x: 8, y: 8}, file: 'Rondo_Main_High_Res5.png'},
-    {id: 'karakin', name: 'Karakin', cells: {x: 2, y: 2}, file: 'Karakin_Main_High_Res2.png'},
-    {id: 'paramo', name: 'Paramo', cells: {x: 3, y: 3}, file: 'Paramo_Main_High_Res1.png'},
-].map(m => ({...m, image: `assets/maps/${m.file}`}));
+const TILE_SIZE = 256;
+const ZOOM_HEADROOM = 8;
+const PINCH_SETTLE_MS = 140;
+const PINCH_SENSITIVITY = 0.005;
+const SUBDIV = 10;
 
-const computeMaxZoom = (w, h) => Math.ceil(Math.log2(Math.max(w, h) / 256));
+const MAPS = [
+    {id: 'erangel', name: 'Erangel', cells: {x: 8, y: 8}},
+    {id: 'miramar', name: 'Miramar', cells: {x: 8, y: 8}},
+    {id: 'sanhok',  name: 'Sanhok',  cells: {x: 4, y: 4}},
+    {id: 'deston',  name: 'Deston',  cells: {x: 8, y: 8}},
+    {id: 'rondo',   name: 'Rondo',   cells: {x: 8, y: 8}},
+    {id: 'karakin', name: 'Karakin', cells: {x: 2, y: 2}},
+    {id: 'paramo',  name: 'Paramo',  cells: {x: 3, y: 3}},
+];
 
 const SECRET_ROOMS = {
     erangel: [
         {x: 1379, y: 1815, name: '...'},
     ],
-    miramar: [
-        {x: 0, y: 0, name: '...'},
-    ],
-    sanhok: [
-        {x: 0, y: 0, name: '...'},
-    ],
-    deston: [
-        {x: 0, y: 0, name: '...'},
-    ],
-    rondo: [
-        {x: 0, y: 0, name: '...'},
-    ],
-    karakin: [
-        {x: 0, y: 0, name: '...'},
-    ],
-    paramo: [
-        {x: 0, y: 0, name: '...'},
-    ],
+    miramar: [],
+    sanhok:  [],
+    deston:  [],
+    rondo:   [],
+    karakin: [],
+    paramo:  [],
 };
 
-const buildSecretRooms = (def, toLL) => {
-    const points = SECRET_ROOMS[def.id] || [];
+const computeMaxNativeZoom = (w, h) => Math.ceil(Math.log2(Math.max(w, h) / TILE_SIZE));
+
+const fetchTileInfo = async (id) => {
+    const r = await fetch(`assets/tiles/${id}/info.json`, {cache: 'force-cache'});
+    if (!r.ok) throw new Error(`Tiles for "${id}" not found. Run scripts/build-tiles.sh first.`);
+    return r.json();
+};
+
+const buildGridLayer = (cells, w, h, toLL) => {
+    const layer = L.layerGroup();
+    const cw = w / cells.x;
+    const ch = h / cells.y;
+
+    const subStyle  = {color: '#fff', weight: 1, opacity: 0.15, interactive: false, className: 'pubg-grid-subline'};
+    const mainStyle = {color: '#fff', weight: 1, opacity: 0.30, interactive: false, className: 'pubg-grid-line'};
+
+    for (let i = 0; i < cells.x; i++) {
+        for (let k = 1; k < SUBDIV; k++) {
+            const x = i * cw + (k * cw) / SUBDIV;
+            L.polyline([toLL(x, 0), toLL(x, h)], subStyle).addTo(layer);
+        }
+    }
+    for (let j = 0; j < cells.y; j++) {
+        for (let k = 1; k < SUBDIV; k++) {
+            const y = j * ch + (k * ch) / SUBDIV;
+            L.polyline([toLL(0, y), toLL(w, y)], subStyle).addTo(layer);
+        }
+    }
+    for (let i = 0; i <= cells.x; i++) {
+        L.polyline([toLL(i * cw, 0), toLL(i * cw, h)], mainStyle).addTo(layer);
+    }
+    for (let j = 0; j <= cells.y; j++) {
+        L.polyline([toLL(0, j * ch), toLL(w, j * ch)], mainStyle).addTo(layer);
+    }
+
+    for (let i = 0; i < cells.x; i++) {
+        L.marker(toLL(i * cw + cw / 2, 0), {
+            interactive: false,
+            icon: L.divIcon({
+                className: 'pubg-grid-label pubg-grid-label-col',
+                html: String.fromCharCode(65 + i),
+                iconSize: [cw, 0],
+                iconAnchor: [cw / 2, 0],
+            }),
+        }).addTo(layer);
+    }
+    for (let j = 0; j < cells.y; j++) {
+        L.marker(toLL(0, j * ch + ch / 2), {
+            interactive: false,
+            icon: L.divIcon({
+                className: 'pubg-grid-label pubg-grid-label-row',
+                html: String(j + 1),
+                iconSize: [0, ch],
+                iconAnchor: [0, ch / 2],
+            }),
+        }).addTo(layer);
+    }
+
+    return layer;
+};
+
+const buildSecretRoomsLayer = (mapId, toLL) => {
     const layer = L.layerGroup();
     const icon = L.divIcon({
         className: 'secret-room-marker',
@@ -45,7 +97,7 @@ const buildSecretRooms = (def, toLL) => {
         iconSize: [24, 24],
         iconAnchor: [12, 12],
     });
-    for (const p of points) {
+    for (const p of SECRET_ROOMS[mapId] || []) {
         const marker = L.marker(toLL(p.x, p.y), {icon, riseOnHover: true});
         if (p.name) marker.bindTooltip(p.name, {direction: 'top', offset: [0, -12]});
         marker.addTo(layer);
@@ -53,77 +105,57 @@ const buildSecretRooms = (def, toLL) => {
     return layer;
 };
 
-const buildGrid = (def, w, h, toLL) => {
-    const cells = def.cells;
-    const layer = L.layerGroup();
-    const cw = w / cells.x;
-    const ch = h / cells.y;
+const attachSmoothZoom = (map) => {
+    const container = map.getContainer();
+    const pane = map.getPane('mapPane');
 
-    const SUBDIV = 10;
-    const subLineStyle = {
-        color: '#ffffff',
-        weight: 1,
-        opacity: 0.15,
-        interactive: false,
-        className: 'pubg-grid-subline',
-    };
-    const lineStyle = {
-        color: '#ffffff',
-        weight: 1,
-        opacity: 0.30,
-        interactive: false,
-        className: 'pubg-grid-line',
+    let active = false;
+    let scale = 1;
+    let baseZoom = 0;
+    let originX = 0;
+    let originY = 0;
+    let timer = null;
+
+    const apply = () => {
+        const pos = L.DomUtil.getPosition(pane);
+        pane.style.transformOrigin = `${originX - pos.x}px ${originY - pos.y}px`;
+        pane.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${scale})`;
     };
 
-    for (let i = 0; i < cells.x; i++) {
-        for (let k = 1; k < SUBDIV; k++) {
-            const x = i * cw + (k * cw) / SUBDIV;
-            L.polyline([toLL(x, 0), toLL(x, h)], subLineStyle).addTo(layer);
+    const settle = () => {
+        if (!active) return;
+        active = false;
+        const target = Math.max(
+            map.getMinZoom(),
+            Math.min(map.getMaxZoom(), baseZoom + Math.log2(scale)),
+        );
+        pane.style.transformOrigin = '';
+        L.DomUtil.setPosition(pane, L.DomUtil.getPosition(pane));
+        map.setZoomAround(L.point(originX, originY), target, {animate: false});
+        scale = 1;
+    };
+
+    container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const r = container.getBoundingClientRect();
+        originX = e.clientX - r.left;
+        originY = e.clientY - r.top;
+
+        if (!active) {
+            active = true;
+            scale = 1;
+            baseZoom = map.getZoom();
         }
-    }
 
-    for (let j = 0; j < cells.y; j++) {
-        for (let k = 1; k < SUBDIV; k++) {
-            const y = j * ch + (k * ch) / SUBDIV;
-            L.polyline([toLL(0, y), toLL(w, y)], subLineStyle).addTo(layer);
-        }
-    }
+        scale *= Math.exp(-e.deltaY * PINCH_SENSITIVITY);
+        const minS = Math.pow(2, map.getMinZoom() - baseZoom);
+        const maxS = Math.pow(2, map.getMaxZoom() - baseZoom);
+        scale = Math.max(minS, Math.min(maxS, scale));
 
-    for (let i = 0; i <= cells.x; i++) {
-        const x = i * cw;
-        L.polyline([toLL(x, 0), toLL(x, h)], lineStyle).addTo(layer);
-    }
-
-    for (let j = 0; j <= cells.y; j++) {
-        const y = j * ch;
-        L.polyline([toLL(0, y), toLL(w, y)], lineStyle).addTo(layer);
-    }
-
-    const letterIcon = (text) => L.divIcon({
-        className: 'pubg-grid-label pubg-grid-label-col',
-        html: text,
-        iconSize: [cw, 0],
-        iconAnchor: [cw / 2, 0],
-    });
-
-    const numberIcon = (text) => L.divIcon({
-        className: 'pubg-grid-label pubg-grid-label-row',
-        html: text,
-        iconSize: [0, ch],
-        iconAnchor: [0, ch / 2],
-    });
-
-    for (let i = 0; i < cells.x; i++) {
-        const letter = String.fromCharCode(65 + i);
-        L.marker(toLL(i * cw + cw / 2, 0), {icon: letterIcon(letter), interactive: false}).addTo(layer);
-    }
-
-    for (let j = 0; j < cells.y; j++) {
-        const number = String(j + 1);
-        L.marker(toLL(0, j * ch + ch / 2), {icon: numberIcon(number), interactive: false}).addTo(layer);
-    }
-
-    return layer;
+        apply();
+        clearTimeout(timer);
+        timer = setTimeout(settle, PINCH_SETTLE_MS);
+    }, {passive: false});
 };
 
 createApp({
@@ -132,84 +164,46 @@ createApp({
         const gridVisible = ref(true);
         const secretsVisible = ref(false);
         const cursor = ref({visible: false, px: 0, py: 0, cell: ''});
+
         let map = null;
-        let overlay = null;
+        let baseLayer = null;
         let gridLayer = null;
         let secretsLayer = null;
-        let dims = {w: 0, h: 0, maxZ: 0};
+        let dims = null;
 
-        const fetchInfo = async (id) => {
-            try {
-                const r = await fetch(`assets/tiles/${id}/info.json`, {cache: 'force-cache'});
-                if (!r.ok) return null;
-                return await r.json();
-            } catch {
-                return null;
-            }
+        const cleanupLayers = () => {
+            [baseLayer, gridLayer, secretsLayer].forEach(l => l && map.removeLayer(l));
+            baseLayer = gridLayer = secretsLayer = null;
         };
 
-        const loadImageSize = (src) => new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve({w: img.naturalWidth, h: img.naturalHeight});
-            img.onerror = reject;
-            img.src = src;
-        });
-
         const showMap = async (def) => {
-            if (overlay) {
-                map.removeLayer(overlay);
-                overlay = null;
-            }
-            if (gridLayer) {
-                map.removeLayer(gridLayer);
-                gridLayer = null;
-            }
-            if (secretsLayer) {
-                map.removeLayer(secretsLayer);
-                secretsLayer = null;
-            }
+            cleanupLayers();
 
-            const info = await fetchInfo(def.id);
-            let w, h, useTiles;
-            if (info) {
-                w = info.width;
-                h = info.height;
-                useTiles = true;
-            } else {
-                const sz = await loadImageSize(def.image);
-                w = sz.w;
-                h = sz.h;
-                useTiles = false;
-            }
-
-            const maxZ = computeMaxZoom(w, h);
-            const toLL = (px, py) => map.unproject([px, py], maxZ);
+            const {width: w, height: h} = await fetchTileInfo(def.id);
+            const maxNativeZoom = computeMaxNativeZoom(w, h);
+            const maxZoom = maxNativeZoom + ZOOM_HEADROOM;
+            const toLL = (px, py) => map.unproject([px, py], maxNativeZoom);
             const bounds = L.latLngBounds(toLL(0, h), toLL(w, 0));
-            dims = {w, h, maxZ};
 
-            const maxMapZoom = maxZ + 8;
+            dims = {w, h, maxZ: maxNativeZoom};
 
-            if (useTiles) {
-                overlay = L.tileLayer(`assets/tiles/${def.id}/{z}/{y}/{x}.webp`, {
-                    tileSize: 256,
-                    minNativeZoom: 0,
-                    maxNativeZoom: maxZ,
-                    maxZoom: maxMapZoom,
-                    bounds,
-                    noWrap: true,
-                    keepBuffer: 8,
-                }).addTo(map);
-            } else {
-                overlay = L.imageOverlay(def.image, bounds).addTo(map);
-            }
+            baseLayer = L.tileLayer(`assets/tiles/${def.id}/{z}/{y}/{x}.webp`, {
+                tileSize: TILE_SIZE,
+                minNativeZoom: 0,
+                maxNativeZoom,
+                maxZoom,
+                bounds,
+                noWrap: true,
+                keepBuffer: 8,
+            }).addTo(map);
 
-            gridLayer = buildGrid(def, w, h, toLL);
+            gridLayer = buildGridLayer(def.cells, w, h, toLL);
             if (gridVisible.value) gridLayer.addTo(map);
 
-            secretsLayer = buildSecretRooms(def, toLL);
+            secretsLayer = buildSecretRoomsLayer(def.id, toLL);
             if (secretsVisible.value) secretsLayer.addTo(map);
 
-            map.setMaxZoom(maxMapZoom);
+            map.setMaxZoom(maxZoom);
             map.setMaxBounds(bounds);
             map.fitBounds(bounds);
         };
@@ -220,16 +214,34 @@ createApp({
             await showMap(m);
         };
 
+        const updateCursor = (e) => {
+            if (!dims) return;
+            const {w, h, maxZ} = dims;
+            const pt = map.project(e.latlng, maxZ);
+            const px = Math.round(pt.x);
+            const py = Math.round(pt.y);
+            if (px < 0 || py < 0 || px > w || py > h) {
+                if (cursor.value.visible) cursor.value.visible = false;
+                return;
+            }
+            const cells = currentMap.value.cells;
+            const col = Math.min(cells.x - 1, Math.floor(px / (w / cells.x)));
+            const row = Math.min(cells.y - 1, Math.floor(py / (h / cells.y)));
+            cursor.value = {
+                visible: true,
+                px, py,
+                cell: `${String.fromCharCode(65 + col)}${row + 1}`,
+            };
+        };
+
         watch(gridVisible, (v) => {
-            if (!map || !gridLayer) return;
-            if (v) gridLayer.addTo(map);
-            else map.removeLayer(gridLayer);
+            if (!gridLayer) return;
+            v ? gridLayer.addTo(map) : map.removeLayer(gridLayer);
         });
 
         watch(secretsVisible, (v) => {
-            if (!map || !secretsLayer) return;
-            if (v) secretsLayer.addTo(map);
-            else map.removeLayer(secretsLayer);
+            if (!secretsLayer) return;
+            v ? secretsLayer.addTo(map) : map.removeLayer(secretsLayer);
         });
 
         onMounted(async () => {
@@ -239,96 +251,21 @@ createApp({
                 maxZoom: 8,
                 zoomSnap: 0,
                 zoomDelta: 0.5,
-                zoomAnimation: true,
                 attributionControl: false,
-                zoomControl: true,
                 scrollWheelZoom: false,
             });
 
-            const container = map.getContainer();
-            const mapPane = map.getPane('mapPane');
+            attachSmoothZoom(map);
 
-            let pinching = false;
-            let pinchScale = 1;
-            let pinchBaseZoom = 0;
-            let pinchOriginX = 0;
-            let pinchOriginY = 0;
-            let settleTimer = null;
-
-            const applyVisualScale = () => {
-                const pos = mapPane._leaflet_pos || L.point(0, 0);
-                mapPane.style.transformOrigin = `${pinchOriginX - pos.x}px ${pinchOriginY - pos.y}px`;
-                mapPane.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${pinchScale})`;
-            };
-
-            const settle = () => {
-                if (!pinching) return;
-                pinching = false;
-                const newZoom = Math.max(
-                    map.getMinZoom(),
-                    Math.min(map.getMaxZoom(), pinchBaseZoom + Math.log2(pinchScale)),
-                );
-                mapPane.style.transformOrigin = '';
-                const pos = mapPane._leaflet_pos || L.point(0, 0);
-                L.DomUtil.setPosition(mapPane, pos);
-                map.setZoomAround(L.point(pinchOriginX, pinchOriginY), newZoom, {animate: false});
-                pinchScale = 1;
-            };
-
-            container.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const r = container.getBoundingClientRect();
-                pinchOriginX = e.clientX - r.left;
-                pinchOriginY = e.clientY - r.top;
-
-                if (!pinching) {
-                    pinching = true;
-                    pinchScale = 1;
-                    pinchBaseZoom = map.getZoom();
-                }
-
-                pinchScale *= Math.exp(-e.deltaY * 0.005);
-
-                const minS = Math.pow(2, map.getMinZoom() - pinchBaseZoom);
-                const maxS = Math.pow(2, map.getMaxZoom() - pinchBaseZoom);
-                pinchScale = Math.max(minS, Math.min(maxS, pinchScale));
-
-                applyVisualScale();
-
-                clearTimeout(settleTimer);
-                settleTimer = setTimeout(settle, 140);
-            }, {passive: false});
-
-            map.on('mousemove', (e) => {
-                const {w, h, maxZ} = dims;
-                if (!w) return;
-                const pt = map.project(e.latlng, maxZ);
-                const px = Math.round(pt.x);
-                const py = Math.round(pt.y);
-                if (px < 0 || py < 0 || px > w || py > h) {
-                    if (cursor.value.visible) cursor.value = {...cursor.value, visible: false};
-                    return;
-                }
-                const cells = currentMap.value.cells;
-                const col = Math.min(cells.x - 1, Math.floor(px / (w / cells.x)));
-                const row = Math.min(cells.y - 1, Math.floor(py / (h / cells.y)));
-                cursor.value = {
-                    visible: true,
-                    px, py,
-                    cell: `${String.fromCharCode(65 + col)}${row + 1}`,
-                };
-            });
-
+            map.on('mousemove', updateCursor);
             map.on('mouseout', () => {
-                cursor.value = {...cursor.value, visible: false};
+                cursor.value.visible = false;
             });
 
             await showMap(currentMap.value);
         });
 
-        onBeforeUnmount(() => {
-            if (map) map.remove();
-        });
+        onBeforeUnmount(() => map?.remove());
 
         return {
             maps: MAPS,
