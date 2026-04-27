@@ -36,25 +36,11 @@ html, body, #app {
 }
 
 .secret-room-marker {
-    position: relative;
     background: transparent;
     border: 2px solid #ff4f4f;
     border-radius: 50%;
     box-shadow: 0 0 0 1px rgba(255, 0, 0, 0.3);
     transition: transform 0.1s ease;
-}
-
-.secret-room-marker::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 4px;
-    height: 4px;
-    background: #ff4f4f;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 0 1px rgba(255, 0, 0, 0.3);
 }
 
 .secret-room-marker:hover {
