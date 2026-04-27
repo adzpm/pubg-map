@@ -1,0 +1,87 @@
+html, body, #app {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    background: #1a1a1a;
+}
+
+.map-viewport {
+    flex: 1 1 auto;
+    background: #0d1117;
+}
+
+.leaflet-container {
+    background: #0d1117;
+    outline: none;
+}
+
+.leaflet-image-layer,
+.leaflet-tile {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.pubg-grid-line {
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
+}
+
+.pubg-grid-subline {
+    stroke-dasharray: 2 3;
+}
+
+.secret-room-marker {
+    position: relative;
+    background: transparent;
+    border: 2px solid #ff4f4f;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(255, 0, 0, 0.3);
+    transition: transform 0.1s ease;
+}
+
+.secret-room-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: #ff4f4f;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 1px rgba(255, 0, 0, 0.3);
+}
+
+.secret-room-marker:hover {
+    transform: scale(1.15);
+}
+
+.pubg-grid-label {
+    color: #fff;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    user-select: none;
+    background: transparent;
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+}
+
+.pubg-grid-label-col {
+    transform: translateY(4px);
+}
+
+.pubg-grid-label-row {
+    transform: translateX(6px);
+    justify-content: flex-start;
+}

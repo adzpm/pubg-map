@@ -1,0 +1,80 @@
+version: '3'
+
+vars:
+  IMAGE: pubg-map
+  TAG: latest
+  PORT: 8080
+  DEV_PORT: 5180
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  install:
+    desc: Install npm dependencies
+    cmds:
+      - npm install
+
+  dev:
+    desc: Run Vite dev server with HMR
+    deps: [install]
+    cmds:
+      - npm run dev
+
+  build:
+    desc: Build production bundle into dist/
+    deps: [install]
+    cmds:
+      - npm run build
+
+  preview:
+    desc: Preview production build locally
+    deps: [build]
+    cmds:
+      - npm run preview
+
+  tiles:
+    desc: Generate map tiles from assets/maps/*.png into public/assets/tiles
+    cmds:
+      - ./scripts/build-tiles.sh
+
+  tiles:clean:
+    desc: Remove generated tiles
+    cmds:
+      - rm -rf public/assets/tiles
+
+  clean:
+    desc: Remove build artefacts and node_modules
+    cmds:
+      - rm -rf dist node_modules .vite
+
+  docker:build:
+    desc: Build Docker image
+    cmds:
+      - docker build -t {{.IMAGE}}:{{.TAG}} .
+
+  docker:run:
+    desc: Run Docker image on PORT (default 8080)
+    deps: [docker:build]
+    cmds:
+      - docker run --rm -p {{.PORT}}:80 --name {{.IMAGE}} {{.IMAGE}}:{{.TAG}}
+
+  docker:stop:
+    desc: Stop running Docker container
+    cmds:
+      - docker stop {{.IMAGE}} || true
+
+  lint:tiles:
+    desc: List maps that have source PNG but no generated tiles
+    cmds:
+      - |
+        for src in assets/maps/*.png; do
+          [ -f "$src" ] || continue
+          base=$(basename "$src" .png)
+          id=$(echo "$base" | sed 's/_Main_High_Res//' | tr '[:upper:]' '[:lower:]')
+          if [ ! -d "public/assets/tiles/$id" ]; then
+            echo "missing tiles: $id"
+          fi
+        done
