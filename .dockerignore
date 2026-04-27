@@ -8,4 +8,5 @@ memory
 scripts
 assets/maps
 node_modules
+dist
 *.log

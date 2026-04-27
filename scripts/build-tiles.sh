@@ -8,13 +8,13 @@ if ! command -v vips >/dev/null 2>&1; then
     exit 1
 fi
 
-mkdir -p assets/tiles
+mkdir -p public/assets/tiles
 
 shopt -s nullglob
 for src in assets/maps/*.png; do
     base=$(basename "$src" .png)
     id=$(echo "$base" | sed 's/_Main_High_Res//' | tr '[:upper:]' '[:lower:]')
-    out="assets/tiles/$id"
+    out="public/assets/tiles/$id"
 
     if [ -d "$out" ]; then
         echo "skip $id (already tiled, delete $out to regenerate)"

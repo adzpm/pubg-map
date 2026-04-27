@@ -20,3 +20,8 @@ vips-properties.xml
 # Logs
 *.log
 npm-debug.log*
+
+# Node / Vite
+node_modules/
+dist/
+.vite/
