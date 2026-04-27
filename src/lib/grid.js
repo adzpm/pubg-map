@@ -17,10 +17,19 @@ const MAIN_STYLE = {
     className: 'pubg-grid-line',
 }
 
+const HIGHLIGHT_STYLE = {
+    color: '#fff',
+    weight: 0,
+    fillColor: '#fff',
+    fillOpacity: 0.10,
+    interactive: false,
+}
+
+const cellSize = (cells, w, h) => ({cw: w / cells.x, ch: h / cells.y})
+
 export const buildGridLayer = (cells, w, h, toLL) => {
     const layer = L.layerGroup()
-    const cw = w / cells.x
-    const ch = h / cells.y
+    const {cw, ch} = cellSize(cells, w, h)
 
     for (let i = 0; i < cells.x; i++) {
         for (let k = 1; k < SUBDIV; k++) {
@@ -69,4 +78,35 @@ export const buildGridLayer = (cells, w, h, toLL) => {
     }
 
     return layer
+}
+
+export const createCellHighlight = (cells, w, h, toLL) => {
+    const {cw, ch} = cellSize(cells, w, h)
+
+    const cellBounds = (col, row) => L.latLngBounds(
+        toLL(col * cw, (row + 1) * ch),
+        toLL((col + 1) * cw, row * ch),
+    )
+
+    let rectangle = null
+    let current = null
+
+    return {
+        show(map, col, row) {
+            if (current && current.col === col && current.row === row) return
+            current = {col, row}
+            const bounds = cellBounds(col, row)
+            if (rectangle) {
+                rectangle.setBounds(bounds)
+            } else {
+                rectangle = L.rectangle(bounds, HIGHLIGHT_STYLE).addTo(map)
+            }
+        },
+        hide(map) {
+            if (!rectangle) return
+            map.removeLayer(rectangle)
+            rectangle = null
+            current = null
+        },
+    }
 }

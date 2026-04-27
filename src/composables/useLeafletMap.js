@@ -2,7 +2,7 @@ import {onMounted, onBeforeUnmount, watch, shallowRef} from 'vue'
 import L from 'leaflet'
 import {ZOOM_HEADROOM, TILE_SIZE} from '@/config'
 import {computeMaxNativeZoom, fetchTileInfo, tileUrlTemplate} from '@/lib/tiles'
-import {buildGridLayer} from '@/lib/grid'
+import {buildGridLayer, createCellHighlight} from '@/lib/grid'
 import {buildSecretRoomsLayer} from '@/lib/secrets'
 import {attachSmoothZoom} from '@/lib/smooth-zoom'
 
@@ -22,6 +22,7 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     let baseLayer = null
     let gridLayer = null
     let secretsLayer = null
+    let highlight = null
     let dims = null
     let mapBounds = null
     let detachZoom = null
@@ -34,10 +35,11 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     }
 
     const cleanupLayers = () => {
+        if (highlight) highlight.hide(map.value)
         for (const layer of [baseLayer, gridLayer, secretsLayer]) {
             if (layer) map.value.removeLayer(layer)
         }
-        baseLayer = gridLayer = secretsLayer = null
+        baseLayer = gridLayer = secretsLayer = highlight = null
     }
 
     const showMap = async (def) => {
@@ -68,6 +70,8 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         secretsLayer = buildSecretRoomsLayer(def.id, toLL)
         if (secretsVisible.value) secretsLayer.addTo(map.value)
 
+        highlight = createCellHighlight(def.cells, w, h, toLL)
+
         map.value.setMaxZoom(maxZoom)
         map.value.setMaxBounds(bounds)
 
@@ -84,6 +88,7 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         const py = Math.round(pt.y)
 
         if (px < 0 || py < 0 || px > w || py > h) {
+            highlight?.hide(map.value)
             onCursor(EMPTY_CURSOR)
             return
         }
@@ -91,6 +96,9 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         const cells = currentMap.value.cells
         const col = Math.min(cells.x - 1, Math.floor(px / (w / cells.x)))
         const row = Math.min(cells.y - 1, Math.floor(py / (h / cells.y)))
+
+        if (gridVisible.value) highlight?.show(map.value, col, row)
+        else highlight?.hide(map.value)
 
         onCursor({
             visible: true,
@@ -106,7 +114,10 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         detachZoom = attachSmoothZoom(map.value)
 
         map.value.on('mousemove', updateCursor)
-        map.value.on('mouseout', () => onCursor(EMPTY_CURSOR))
+        map.value.on('mouseout', () => {
+            highlight?.hide(map.value)
+            onCursor(EMPTY_CURSOR)
+        })
         map.value.on('resize', applyMinZoom)
 
         await showMap(currentMap.value)
@@ -126,6 +137,7 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     watch(gridVisible, (visible) => {
         if (!gridLayer || !map.value) return
         visible ? gridLayer.addTo(map.value) : map.value.removeLayer(gridLayer)
+        if (!visible) highlight?.hide(map.value)
     })
 
     watch(secretsVisible, (visible) => {
