@@ -8,8 +8,6 @@ import {attachSmoothZoom} from '@/lib/smooth-zoom'
 
 const MAP_OPTIONS = {
     crs: L.CRS.Simple,
-    minZoom: -5,
-    maxZoom: 8,
     zoomSnap: 0,
     zoomDelta: 0.5,
     attributionControl: false,
@@ -25,7 +23,15 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     let gridLayer = null
     let secretsLayer = null
     let dims = null
+    let mapBounds = null
     let detachZoom = null
+
+    const applyMinZoom = () => {
+        if (!map.value || !mapBounds) return
+        const minZoom = map.value.getBoundsZoom(mapBounds, true)
+        map.value.setMinZoom(minZoom)
+        if (map.value.getZoom() < minZoom) map.value.setZoom(minZoom)
+    }
 
     const cleanupLayers = () => {
         for (const layer of [baseLayer, gridLayer, secretsLayer]) {
@@ -44,6 +50,7 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         const bounds = L.latLngBounds(toLL(0, h), toLL(w, 0))
 
         dims = {w, h, maxZ: maxNativeZoom}
+        mapBounds = bounds
 
         baseLayer = L.tileLayer(tileUrlTemplate(def.id), {
             tileSize: TILE_SIZE,
@@ -63,7 +70,10 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
 
         map.value.setMaxZoom(maxZoom)
         map.value.setMaxBounds(bounds)
-        map.value.fitBounds(bounds)
+
+        const minZoom = map.value.getBoundsZoom(bounds, true)
+        map.value.setMinZoom(minZoom)
+        map.value.setView(bounds.getCenter(), minZoom, {animate: false})
     }
 
     const updateCursor = (e) => {
@@ -97,6 +107,7 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
 
         map.value.on('mousemove', updateCursor)
         map.value.on('mouseout', () => onCursor(EMPTY_CURSOR))
+        map.value.on('resize', applyMinZoom)
 
         await showMap(currentMap.value)
     })
