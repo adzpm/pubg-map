@@ -1,5 +1,5 @@
 import L from 'leaflet'
-import {SECRET_ROOMS} from '../constants.js'
+import {SECRET_ROOMS} from '@/data/secrets'
 
 export const buildSecretRoomsLayer = (mapId, toLL) => {
     const layer = L.layerGroup()

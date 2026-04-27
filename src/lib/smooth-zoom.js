@@ -1,5 +1,5 @@
 import L from 'leaflet'
-import {PINCH_SETTLE_MS, PINCH_SENSITIVITY} from '../constants.js'
+import {PINCH_SETTLE_MS, PINCH_SENSITIVITY} from '@/config'
 
 export const attachSmoothZoom = (map) => {
     const container = map.getContainer()
@@ -31,7 +31,7 @@ export const attachSmoothZoom = (map) => {
         scale = 1
     }
 
-    container.addEventListener('wheel', (e) => {
+    const onWheel = (e) => {
         e.preventDefault()
         const r = container.getBoundingClientRect()
         originX = e.clientX - r.left
@@ -51,5 +51,12 @@ export const attachSmoothZoom = (map) => {
         apply()
         clearTimeout(timer)
         timer = setTimeout(settle, PINCH_SETTLE_MS)
-    }, {passive: false})
+    }
+
+    container.addEventListener('wheel', onWheel, {passive: false})
+
+    return () => {
+        clearTimeout(timer)
+        container.removeEventListener('wheel', onWheel)
+    }
 }

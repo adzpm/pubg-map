@@ -1,19 +1,19 @@
 <script setup>
-import {ref} from 'vue';
-import {MAPS} from './constants.js';
-import AppNavbar from './components/AppNavbar.vue';
-import MapViewer from './components/MapViewer.vue';
-import StatusBar from './components/StatusBar.vue';
+import {ref} from 'vue'
+import {MAPS} from '@/data/maps'
+import AppNavbar from '@/components/AppNavbar.vue'
+import MapViewer from '@/components/MapViewer.vue'
+import StatusBar from '@/components/StatusBar.vue'
 
-const currentMap = ref(MAPS[0]);
-const gridVisible = ref(true);
-const secretsVisible = ref(true);
-const cursor = ref({visible: false, px: 0, py: 0, cell: ''});
+const currentMap = ref(MAPS[0])
+const gridVisible = ref(true)
+const secretsVisible = ref(true)
+const cursor = ref({visible: false, px: 0, py: 0, cell: ''})
 
-const selectMap = (m) => {
-    if (m.id === currentMap.value.id) return;
-    currentMap.value = m;
-};
+const selectMap = (map) => {
+    if (map.id === currentMap.value.id) return
+    currentMap.value = map
+}
 </script>
 
 <template>

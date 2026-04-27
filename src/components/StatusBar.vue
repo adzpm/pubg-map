@@ -1,7 +1,7 @@
 <script setup>
 defineProps({
     cursor: {type: Object, required: true},
-});
+})
 </script>
 
 <template>
