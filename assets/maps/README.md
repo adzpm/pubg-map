@@ -4,7 +4,7 @@ Source: https://github.com/pubg/api-assets/tree/master/Assets/Maps
 
 Place here all the high-res maps in PNG format.
 
-- camp-jackal.png
+- campjackal.png
 - deston.png
 - erangel.png
 - haven.png

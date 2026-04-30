@@ -36,4 +36,7 @@ export const SECRET_ROOMS = {
     sanhok: [],
     paramo: [],
     karakin: [],
+    training: [],
+    campjackal: [],
+    haven: [],
 }

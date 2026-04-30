@@ -7,4 +7,7 @@ export const MAPS = [
     {id: 'sanhok', name: 'Sanhok', cells: {x: 4, y: 4}},
     {id: 'paramo', name: 'Paramo', cells: {x: 3, y: 3}},
     {id: 'karakin', name: 'Karakin', cells: {x: 2, y: 2}},
+    {id: 'training', name: 'Training', cells: {x: 2, y: 2}},
+    {id: 'campjackal', name: 'Camp Jackal', cells: {x: 2, y: 2}},
+    {id: 'haven', name: 'Haven', cells: {x: 1, y: 1}},
 ]
