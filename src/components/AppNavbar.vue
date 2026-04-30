@@ -14,7 +14,7 @@ const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: t
     <nav class="navbar navbar-dark bg-dark px-3 py-2 flex-shrink-0">
         <span class="navbar-brand mb-0 h1">
             <i class="bi bi-map-fill me-3"></i>
-            <span class="text-light">pubg-map</span>
+            <span class="text-light">PUBG Maps</span>
         </span>
         <div class="d-flex align-items-center gap-3">
             <div class="form-check form-switch text-light mb-0">
