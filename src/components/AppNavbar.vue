@@ -1,7 +1,8 @@
 <script setup>
 defineProps({
-    maps: {type: Array, required: true},
-    currentMap: {type: Object, required: true},
+  maps: {type: Array, required: true},
+  currentMap: {type: Object, required: true},
+  secretsAvailable: {type: Boolean, default: false},
 })
 
 defineEmits(['select'])
@@ -11,53 +12,37 @@ const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: t
 </script>
 
 <template>
-    <aside class="app-sidebar bg-dark text-light d-flex flex-column flex-shrink-0 p-3 border-secondary border-opacity-25 overflow-auto">
-        <div class="navbar-brand mb-4 d-flex align-items-center">
-            <i class="bi bi-map-fill me-2 fs-4"></i>
-            <span class="h5 mb-0">PUBG Maps</span>
+  <div class="d-flex flex-column flex-shrink-0 overflow-auto py-3 gap-3">
+    <div class="px-3 d-flex align-items-center gap-2 fw-medium">
+      <i class="bi bi-map"></i>
+      <span>PUBG maps</span>
+    </div>
+    <div class="d-flex flex-column gap-2">
+      <h6 class="text-secondary text-uppercase px-3 m-0 small">Map</h6>
+      <div class="d-flex flex-column">
+        <a href="#"
+           class="px-3 py-2 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
+           @click.prevent="$emit('select', map)"
+           :class="map.id === currentMap.id ? 'text-bg-light link-dark' : ''"
+           v-for="map in maps" :key="map.id">
+          <span class="">{{ map.name }}</span>
+          <span class="small opacity-50">{{ map.cells.x }}×{{ map.cells.y }}</span>
+        </a>
+      </div>
+    </div>
+    <div class="d-flex flex-column gap-2">
+      <h6 class="text-secondary text-uppercase px-3 m-0 small">Layers</h6>
+      <div class="d-flex flex-column gap-1 px-3">
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="switchGrid" v-model="gridVisible">
+          <label class="form-check-label" for="switchGrid">Grid</label>
         </div>
-
-        <div class="mb-4">
-            <h6 class="text-secondary text-uppercase small mb-2">Map</h6>
-            <ul class="list-unstyled mb-0">
-                <li v-for="map in maps" :key="map.id" class="mb-1">
-                    <a
-                        href="#"
-                        class="d-flex justify-content-between align-items-center px-2 py-2 rounded text-decoration-none sidebar-map-item"
-                        :class="map.id === currentMap.id ? 'active bg-primary text-white' : 'text-light'"
-                        @click.prevent="$emit('select', map)"
-                    >
-                        <span>{{ map.name }}</span>
-                        <small class="ms-2" :class="map.id === currentMap.id ? 'text-white-50' : 'text-secondary'">
-                            {{ map.cells.x }}×{{ map.cells.y }}
-                        </small>
-                    </a>
-                </li>
-            </ul>
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="switchSecrets"
+                 :disabled="!secretsAvailable" v-model="secretsVisible">
+          <label class="form-check-label" for="switchSecrets" :class="{'opacity-50': !secretsAvailable}">Secrets</label>
         </div>
-
-        <div>
-            <h6 class="text-secondary text-uppercase small mb-2">Layers</h6>
-            <div class="form-check form-switch mb-2">
-                <input
-                    id="gridSwitch"
-                    v-model="gridVisible"
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                >
-                <label class="form-check-label" for="gridSwitch">Grid</label>
-            </div>
-            <div class="form-check form-switch">
-                <input
-                    id="secretsSwitch"
-                    v-model="secretsVisible"
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                >
-                <label class="form-check-label" for="secretsSwitch">Secrets</label>
-            </div>
-        </div>
-    </aside>
+      </div>
+    </div>
+  </div>
 </template>
