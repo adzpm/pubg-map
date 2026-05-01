@@ -4,7 +4,7 @@ html, body, #app {
 }
 
 .leaflet-container {
-    background: #0d1117;
+    background: var(--bs-body-bg);
     outline: none;
 }
 
@@ -24,11 +24,11 @@ html, body, #app {
 
 .secret-room-marker {
     background: transparent;
-    border: 2px solid #ff4f4f;
+    border: 2px solid var(--bs-danger);
 }
 
 .pubg-grid-label {
-    color: #fff;
+    color: var(--bs-body-color);
     pointer-events: none;
     user-select: none;
     background: transparent;

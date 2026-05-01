@@ -11,40 +11,32 @@ const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: t
 </script>
 
 <template>
-  <aside class="d-flex flex-column flex-shrink-0 overflow-auto">
-    <div class="p-3 py-1">
-      <span class="text-secondary text-uppercase small ">Map</span>
-    </div>
-    <ul class="nav nav-pills flex-column mb-auto">
-      <li class="nav-item" v-for="map in maps" :key="map.id">
-        <a href="#" class="nav-link rounded-0" @click.prevent="$emit('select', map)"
-           :class="map.id === currentMap.id ? 'active' : ''"
-        >{{ map.name }} [{{ map.cells.x }}×{{ map.cells.y }}]</a>
-      </li>
-    </ul>
-
-    <div>
-      <h6 class="text-secondary text-uppercase small mb-2">Layers</h6>
-      <div class="form-check form-switch mb-2">
-        <input
-            id="gridSwitch"
-            v-model="gridVisible"
-            class="form-check-input"
-            type="checkbox"
-            role="switch"
-        >
-        <label class="form-check-label" for="gridSwitch">Grid</label>
-      </div>
-      <div class="form-check form-switch">
-        <input
-            id="secretsSwitch"
-            v-model="secretsVisible"
-            class="form-check-input"
-            type="checkbox"
-            role="switch"
-        >
-        <label class="form-check-label" for="secretsSwitch">Secrets</label>
+  <div class="d-flex flex-column flex-shrink-0 overflow-auto py-3 gap-3">
+    <div class="d-flex flex-column gap-3">
+      <h6 class="text-secondary text-uppercase px-3 m-0">Map</h6>
+      <div class="d-flex flex-column">
+        <a href="#"
+           class="px-3 py-2 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
+           @click.prevent="$emit('select', map)"
+           :class="map.id === currentMap.id ? 'text-bg-light link-dark' : ''"
+           v-for="map in maps" :key="map.id">
+          <span class="">{{ map.name }}</span>
+          <span class="small opacity-50">{{ map.cells.x }}×{{ map.cells.y }}</span>
+        </a>
       </div>
     </div>
-  </aside>
+    <div class="d-flex flex-column gap-3">
+      <h6 class="text-secondary text-uppercase px-3 m-0">Layers</h6>
+      <div class="d-flex flex-column gap-1 px-3">
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="switchGrid" v-model="gridVisible">
+          <label class="form-check-label" for="switchGrid">Grid</label>
+        </div>
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="switchSecrets" v-model="secretsVisible">
+          <label class="form-check-label" for="switchSecrets">Secrets</label>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
