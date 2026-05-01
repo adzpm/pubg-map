@@ -17,7 +17,7 @@ const selectMap = (map) => {
 </script>
 
 <template>
-    <div class="d-flex flex-column flex-md-row vh-100 bg-dark">
+    <div class="d-flex flex-column flex-md-row vh-100">
         <AppNavbar
             :maps="MAPS"
             :current-map="currentMap"

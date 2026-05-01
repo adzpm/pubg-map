@@ -5,7 +5,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="map-status bg-dark text-light px-3 py-1 d-flex gap-4 align-items-center small flex-shrink-0 font-monospace">
+    <div class="px-3 py-1 d-flex gap-4 align-items-center small flex-shrink-0 font-monospace">
         <template v-if="cursor.visible">
             <span class="d-flex gap-2">
                 <span class="text-secondary">Cell:</span>

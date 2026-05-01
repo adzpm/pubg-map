@@ -57,7 +57,7 @@ export const buildGridLayer = (cells, w, h, toLL) => {
         L.marker(toLL(i * cw + cw / 2, 0), {
             interactive: false,
             icon: L.divIcon({
-                className: 'pubg-grid-label pubg-grid-label-col',
+                className: 'pubg-grid-label',
                 html: String.fromCharCode(65 + i),
                 iconSize: [cw, 0],
                 iconAnchor: [cw / 2, 0],
@@ -69,7 +69,7 @@ export const buildGridLayer = (cells, w, h, toLL) => {
         L.marker(toLL(0, j * ch + ch / 2), {
             interactive: false,
             icon: L.divIcon({
-                className: 'pubg-grid-label pubg-grid-label-row',
+                className: 'pubg-grid-label',
                 html: String(j + 1),
                 iconSize: [0, ch],
                 iconAnchor: [0, ch / 2],
