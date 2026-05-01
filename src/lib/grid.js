@@ -4,7 +4,7 @@ import {SUBDIV} from '@/config'
 const SUB_STYLE = {
     color: '#fff',
     weight: 1,
-    opacity: 0.15,
+    opacity: 0.1,
     interactive: false,
     className: 'pubg-grid-subline',
 }
@@ -12,7 +12,7 @@ const SUB_STYLE = {
 const MAIN_STYLE = {
     color: '#fff',
     weight: 1,
-    opacity: 0.30,
+    opacity: 0.3,
     interactive: false,
     className: 'pubg-grid-line',
 }
