@@ -92,3 +92,23 @@ tasks:
     desc: Stop docker-compose service
     cmds:
       - docker compose -f docker/docker-compose.yml down
+
+  electron:install:
+    desc: Install Electron overlay dependencies
+    dir: electron
+    cmds:
+      - npm install
+
+  electron:start:
+    desc: Run Electron overlay (loads dev server at http://localhost:5180)
+    deps: [ electron:install ]
+    dir: electron
+    cmds:
+      - npm start
+
+  electron:start:prod:
+    desc: Run Electron overlay against the production build (http://localhost:8080)
+    deps: [ electron:install ]
+    dir: electron
+    cmds:
+      - npm run start:prod
