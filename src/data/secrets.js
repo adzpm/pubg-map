@@ -5,7 +5,6 @@ export const SECRET_ROOMS = {
         { x: 1483, y: 3544, name: 'Secret Room' },
         { x: 3013, y: 3755, name: 'Secret Room' },
         { x: 4126, y: 1970, name: 'Secret Room' },
-        { x: 5127, y: 668, name: 'Secret Room' },   
         { x: 6529, y: 2078, name: 'Secret Room' },
         { x: 5468, y: 3427, name: 'Secret Room' },
         { x: 4663, y: 4427, name: 'Secret Room' },
@@ -14,7 +13,8 @@ export const SECRET_ROOMS = {
         { x: 1264, y: 5532, name: 'Secret Room' },
         { x: 4402, y: 5922, name: 'Secret Room' },
         { x: 3303, y: 6706, name: 'Secret Room' },
-        { x: 5676, y: 6733, name: 'Secret Room' }
+        { x: 5676, y: 6733, name: 'Secret Room' },
+        { x: 5127, y: 668, name: 'Secret Room' }
     ],
     taego: [
         { x: 1442, y: 1195, name: 'Secret Room' },
@@ -24,11 +24,11 @@ export const SECRET_ROOMS = {
         { x: 1022, y: 3419, name: 'Secret Room' },
         { x: 7132, y: 3382, name: 'Secret Room' },
         { x: 4446, y: 4993, name: 'Secret Room' },
-        { x: 958, y: 5285, name: 'Secret Room' },
         { x: 2434, y: 6483, name: 'Secret Room' },
         { x: 4949, y: 6454, name: 'Secret Room' },
         { x: 6446, y: 5595, name: 'Secret Room' },
         { x: 6387, y: 7221, name: 'Secret Room' },
+        { x: 958, y: 5285, name: 'Secret Room' },
     ],
     miramar: [],
     deston: [],

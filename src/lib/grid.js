@@ -21,7 +21,7 @@ const HIGHLIGHT_STYLE = {
     color: '#fff',
     weight: 0,
     fillColor: '#fff',
-    fillOpacity: 0.10,
+    fillOpacity: 0.05,
     interactive: false,
 }
 

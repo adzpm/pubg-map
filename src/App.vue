@@ -17,18 +17,22 @@ const selectMap = (map) => {
 </script>
 
 <template>
-    <AppNavbar
-        :maps="MAPS"
-        :current-map="currentMap"
-        v-model:grid-visible="gridVisible"
-        v-model:secrets-visible="secretsVisible"
-        @select="selectMap"
-    />
-    <MapViewer
-        :current-map="currentMap"
-        :grid-visible="gridVisible"
-        :secrets-visible="secretsVisible"
-        @cursor="cursor = $event"
-    />
-    <StatusBar :cursor="cursor"/>
+    <div class="d-flex flex-column flex-md-row vh-100 bg-dark">
+        <AppNavbar
+            :maps="MAPS"
+            :current-map="currentMap"
+            v-model:grid-visible="gridVisible"
+            v-model:secrets-visible="secretsVisible"
+            @select="selectMap"
+        />
+        <main class="d-flex flex-column flex-grow-1 min-w-0">
+            <MapViewer
+                :current-map="currentMap"
+                :grid-visible="gridVisible"
+                :secrets-visible="secretsVisible"
+                @cursor="cursor = $event"
+            />
+            <StatusBar :cursor="cursor"/>
+        </main>
+    </div>
 </template>
