@@ -70,7 +70,7 @@ tasks:
   docker:build:
     desc: Build Docker image
     cmds:
-      - docker build -t {{.IMAGE}}:{{.TAG}} .
+      - docker build -f docker/Dockerfile -t {{.IMAGE}}:{{.TAG}} .
 
   docker:run:
     desc: Run Docker image on PORT (default 8080)
@@ -82,3 +82,13 @@ tasks:
     desc: Stop running Docker container
     cmds:
       - docker stop {{.IMAGE}} || true
+
+  docker:up:
+    desc: Start service via docker-compose (port from docker/docker-compose.yml)
+    cmds:
+      - docker compose -f docker/docker-compose.yml up -d --build
+
+  docker:down:
+    desc: Stop docker-compose service
+    cmds:
+      - docker compose -f docker/docker-compose.yml down
