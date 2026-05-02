@@ -17,8 +17,8 @@ const selectMap = (map) => {
 </script>
 
 <template>
-    <div class="app-shell">
-        <div class="map-shell">
+    <div class="app-shell d-flex flex-column">
+        <div class="map-shell position-relative">
             <MapViewer
                 :current-map="currentMap"
                 :grid-visible="gridVisible"
