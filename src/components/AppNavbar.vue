@@ -1,4 +1,6 @@
 <script setup>
+import {ref} from 'vue'
+
 defineProps({
     maps: {type: Array, required: true},
     currentMap: {type: Object, required: true},
@@ -8,53 +10,110 @@ defineEmits(['select'])
 
 const gridVisible = defineModel('gridVisible', {type: Boolean, required: true})
 const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: true})
+
+const panelCollapsed = ref(false)
+const layersCollapsed = ref(false)
+const mapsCollapsed = ref(false)
 </script>
 
 <template>
-    <nav class="navbar navbar-dark bg-dark px-3 py-2 flex-shrink-0">
-        <span class="navbar-brand mb-0 h1">
-            <i class="bi bi-map-fill me-3"></i>
-            <span class="text-light">PUBG Maps</span>
-        </span>
-        <div class="d-flex align-items-center gap-3">
-            <div class="form-check form-switch text-light mb-0">
-                <input
-                    id="gridSwitch"
-                    v-model="gridVisible"
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                >
-                <label class="form-check-label" for="gridSwitch">Grid</label>
-            </div>
-            <div class="form-check form-switch text-light mb-0">
-                <input
-                    id="secretsSwitch"
-                    v-model="secretsVisible"
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                >
-                <label class="form-check-label" for="secretsSwitch">Secrets</label>
-            </div>
-            <div class="dropdown">
-                <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    {{ currentMap.name }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-                    <li v-for="map in maps" :key="map.id">
-                        <a
-                            class="dropdown-item"
-                            :class="{active: map.id === currentMap.id}"
-                            href="#"
-                            @click.prevent="$emit('select', map)"
-                        >
-                            {{ map.name }}
-                            <small class="text-secondary ms-2">{{ map.cells.x }}×{{ map.cells.y }} km</small>
-                        </a>
-                    </li>
-                </ul>
+    <aside class="control-panel" :class="{'control-panel--collapsed': panelCollapsed}">
+        <div class="control-panel__topbar">
+            <button
+                class="control-panel__collapse"
+                type="button"
+                :aria-expanded="String(!panelCollapsed)"
+                @click="panelCollapsed = !panelCollapsed"
+            >
+                <i class="bi" :class="panelCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+            </button>
+            <div class="control-panel__brand">
+                <span class="control-panel__brand-title">
+                    <strong class="control-panel__brand-title-strong">PUBG</strong>
+                    <span class="control-panel__brand-title-rest">Maps</span>
+                </span>
             </div>
         </div>
-    </nav>
+
+        <template v-if="!panelCollapsed">
+            <div class="control-panel__section">
+                <div class="control-panel__header">
+                    <h2 class="control-panel__title">Layers</h2>
+                    <button
+                        class="control-panel__icon"
+                        type="button"
+                        :aria-expanded="String(!layersCollapsed)"
+                        @click="layersCollapsed = !layersCollapsed"
+                    >
+                        <i class="bi" :class="layersCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+                    </button>
+                </div>
+
+                <div v-if="!layersCollapsed">
+                    <button
+                        class="control-row"
+                        :class="{'control-row--active': gridVisible}"
+                        type="button"
+                        :aria-pressed="String(gridVisible)"
+                        @click="gridVisible = !gridVisible"
+                    >
+                        <span class="control-row__label">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                            <span>Grid</span>
+                        </span>
+                        <span class="control-row__toggle" :class="{'control-row__toggle--on': gridVisible}">
+                            <span class="control-row__toggle-thumb"></span>
+                        </span>
+                    </button>
+
+                    <button
+                        class="control-row"
+                        :class="{'control-row--active': secretsVisible}"
+                        type="button"
+                        :aria-pressed="String(secretsVisible)"
+                        @click="secretsVisible = !secretsVisible"
+                    >
+                        <span class="control-row__label">
+                            <i class="bi bi-bullseye"></i>
+                            <span>Secrets</span>
+                        </span>
+                        <span class="control-row__toggle" :class="{'control-row__toggle--on': secretsVisible}">
+                            <span class="control-row__toggle-thumb"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-panel__section control-panel__section--maps">
+                <div class="control-panel__header">
+                    <h2 class="control-panel__title">Maps</h2>
+                    <button
+                        class="control-panel__icon"
+                        type="button"
+                        :aria-expanded="String(!mapsCollapsed)"
+                        @click="mapsCollapsed = !mapsCollapsed"
+                    >
+                        <i class="bi" :class="mapsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+                    </button>
+                </div>
+
+                <div v-if="!mapsCollapsed">
+                    <button
+                        v-for="map in maps"
+                        :key="map.id"
+                        class="control-row"
+                        :class="{'control-row--selected': map.id === currentMap.id}"
+                        type="button"
+                        @click="$emit('select', map)"
+                    >
+                        <span class="control-row__label">
+                            <i class="bi bi-map"></i>
+                            <span>{{ map.name }}</span>
+                        </span>
+                        <span class="control-row__badge">{{ map.cells.x }}×{{ map.cells.y }}</span>
+                    </button>
+                </div>
+            </div>
+        </template>
+    </aside>
 </template>
