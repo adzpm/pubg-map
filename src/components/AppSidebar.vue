@@ -33,14 +33,14 @@ const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: t
     <div class="d-flex flex-column gap-2">
       <h6 class="text-secondary text-uppercase px-3 m-0 small">Layers</h6>
       <div class="d-flex flex-column gap-1 px-3">
-        <div class="form-check form-switch m-0">
-          <input class="form-check-input" type="checkbox" role="switch" id="switchGrid" v-model="gridVisible">
+        <div class="form-check form-switch m-0 d-flex justify-content-between align-items-center ps-0" >
           <label class="form-check-label" for="switchGrid">Grid</label>
+          <input class="form-check-input" type="checkbox" role="switch" id="switchGrid" v-model="gridVisible">
         </div>
-        <div class="form-check form-switch m-0">
+        <div class="form-check form-switch m-0 d-flex justify-content-between align-items-center ps-0">
+          <label class="form-check-label" for="switchSecrets" :class="{'opacity-50': !secretsAvailable}">Secrets</label>
           <input class="form-check-input" type="checkbox" role="switch" id="switchSecrets"
                  :disabled="!secretsAvailable" v-model="secretsVisible">
-          <label class="form-check-label" for="switchSecrets" :class="{'opacity-50': !secretsAvailable}">Secrets</label>
         </div>
       </div>
     </div>
