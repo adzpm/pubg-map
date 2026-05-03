@@ -16,5 +16,5 @@ useLeafletMap(mapEl, toRefs(props), (cursor) => emit('cursor', cursor))
 </script>
 
 <template>
-    <div ref="mapEl" class="map-viewport"></div>
+    <div ref="mapEl" class="flex-fill"></div>
 </template>

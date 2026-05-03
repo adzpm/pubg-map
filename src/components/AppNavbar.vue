@@ -2,8 +2,9 @@
 import {ref} from 'vue'
 
 defineProps({
-    maps: {type: Array, required: true},
-    currentMap: {type: Object, required: true},
+  maps: {type: Array, required: true},
+  currentMap: {type: Object, required: true},
+  secretsAvailable: {type: Boolean, default: false},
 })
 
 const emit = defineEmits(['select'])

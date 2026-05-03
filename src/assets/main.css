@@ -1,8 +1,14 @@
+html {
+    font-size: 90%;
+}
+
 html, body, #app {
     height: 100%;
-    margin: 0;
-    padding: 0;
     overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #app {
@@ -30,7 +36,7 @@ html, body, #app {
 }
 
 .leaflet-container {
-    background: #0d1117;
+    background: var(--bs-body-bg);
     outline: none;
 }
 
@@ -41,48 +47,25 @@ html, body, #app {
 }
 
 .pubg-grid-line {
-    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 1));
 }
 
 .pubg-grid-subline {
-    stroke-dasharray: 2 3;
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 1));
 }
 
 .secret-room-marker {
     background: transparent;
-    border: 2px solid #ff4f4f;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px rgba(255, 0, 0, 0.3);
-    transition: transform 0.1s ease;
-}
-
-.secret-room-marker:hover {
-    transform: scale(1.15);
+    border: 2px solid var(--bs-warning);
 }
 
 .pubg-grid-label {
-    color: #fff;
-    font-weight: 700;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.7);
-    pointer-events: none;
+    color: var(--bs-body-color);
     user-select: none;
-    background: transparent;
-    border: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    letter-spacing: 0.05em;
-}
-
-.pubg-grid-label-col {
-    transform: translateY(4px);
-}
-
-.pubg-grid-label-row {
-    transform: translateX(6px);
-    justify-content: flex-start;
+    padding: 1rem;
 }
 
 .control-panel {
