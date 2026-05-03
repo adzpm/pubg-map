@@ -20,23 +20,22 @@ const selectMap = (map) => {
 </script>
 
 <template>
-    <div class="d-flex flex-column flex-md-row vh-100">
-        <AppNavbar
-            :maps="MAPS"
-            :current-map="currentMap"
-            :secrets-available="hasSecrets"
-            v-model:grid-visible="gridVisible"
-            v-model:secrets-visible="secretsVisible"
-            @select="selectMap"
-        />
-        <main class="d-flex flex-column flex-grow-1">
+    <div class="app-shell d-flex flex-column">
+        <div class="map-shell position-relative">
             <MapViewer
                 :current-map="currentMap"
                 :grid-visible="gridVisible"
                 :secrets-visible="secretsVisible"
                 @cursor="cursor = $event"
             />
+            <AppNavbar
+                :maps="MAPS"
+                :current-map="currentMap"
+                v-model:grid-visible="gridVisible"
+                v-model:secrets-visible="secretsVisible"
+                @select="selectMap"
+            />
             <StatusBar :cursor="cursor"/>
-        </main>
+        </div>
     </div>
 </template>

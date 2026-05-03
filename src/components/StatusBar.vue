@@ -5,8 +5,8 @@ defineProps({
 </script>
 
 <template>
-    <div class="px-3 py-1 d-flex gap-4 align-items-center small flex-shrink-0 font-monospace">
-        <template v-if="cursor.visible">
+    <div v-if="cursor.visible" class="map-status card border-0 text-light shadow-sm">
+        <div class="card-body d-flex gap-4 align-items-center small flex-shrink-0 font-monospace py-2 px-3">
             <span class="d-flex gap-2">
                 <span class="text-secondary">Cell:</span>
                 <strong>{{ cursor.cell }}</strong>
@@ -19,7 +19,6 @@ defineProps({
                 <span class="text-secondary">Y:</span>
                 <strong>{{ cursor.py }}</strong>
             </span>
-        </template>
-        <span v-else class="text-secondary">...</span>
+        </div>
     </div>
 </template>
