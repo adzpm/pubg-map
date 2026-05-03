@@ -1,17 +1,26 @@
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, watch} from 'vue'
 import {MAPS} from '@/data/maps'
 import {SECRET_ROOMS} from '@/data/secrets'
+import {usePersistentRef} from '@/composables/usePersistentRef'
 import AppSidebar from '@/components/AppSidebar.vue'
 import MapViewer from '@/components/MapViewer.vue'
 import StatusBar from '@/components/StatusBar.vue'
 
-const currentMap = ref(MAPS[0])
-const gridVisible = ref(true)
-const secretsVisible = ref(true)
+const currentMapId = usePersistentRef('currentMapId', MAPS[0].id)
+const initialMap = MAPS.find((m) => m.id === currentMapId.value) ?? MAPS[0]
+const currentMap = ref(initialMap)
+currentMapId.value = currentMap.value.id
+
+const gridVisible = usePersistentRef('gridVisible', true)
+const secretsVisible = usePersistentRef('secretsVisible', true)
 const cursor = ref({visible: false, px: 0, py: 0, cell: ''})
 
 const hasSecrets = computed(() => (SECRET_ROOMS[currentMap.value.id] ?? []).length > 0)
+
+watch(currentMap, (map) => {
+    currentMapId.value = map.id
+})
 
 const selectMap = (map) => {
     if (map.id === currentMap.value.id) return
