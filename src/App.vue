@@ -2,7 +2,7 @@
 import {ref, computed} from 'vue'
 import {MAPS} from '@/data/maps'
 import {SECRET_ROOMS} from '@/data/secrets'
-import AppNavbar from '@/components/AppNavbar.vue'
+import AppSidebar from '@/components/AppSidebar.vue'
 import MapViewer from '@/components/MapViewer.vue'
 import StatusBar from '@/components/StatusBar.vue'
 
@@ -29,7 +29,7 @@ const selectMap = (map) => {
                 @cursor="cursor = $event"
             />
         </main>
-        <AppNavbar
+        <AppSidebar
             class="floating-sidebar position-absolute top-0 start-0 m-3 rounded-4 border shadow"
             :maps="MAPS"
             :current-map="currentMap"
