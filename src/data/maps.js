@@ -39,19 +39,4 @@ export const MAPS = [
         name: 'Karakin',
         cells: {x: 2, y: 2},
     },
-    {
-        id: 'training',
-        name: 'Training',
-        cells: {x: 2, y: 2},
-    },
-    {
-        id: 'campjackal',
-        name: 'Camp Jackal',
-        cells: {x: 2, y: 2},
-    },
-    {
-        id: 'haven',
-        name: 'Haven',
-        cells: {x: 1, y: 1},
-    },
 ]
