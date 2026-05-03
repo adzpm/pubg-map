@@ -48,3 +48,18 @@ input, textarea, [contenteditable="true"] {
     justify-content: center;
     padding: 1rem;
 }
+
+.floating-sidebar {
+    max-height: calc(100vh - 2.5rem);
+    z-index: 1000;
+    background: color-mix(in srgb, var(--bs-body-bg) 80%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.floating-statusbar {
+    z-index: 1000;
+    background: color-mix(in srgb, var(--bs-body-bg) 80%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}

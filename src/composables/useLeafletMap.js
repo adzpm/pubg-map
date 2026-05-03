@@ -12,6 +12,7 @@ const MAP_OPTIONS = {
     zoomDelta: 0.5,
     attributionControl: false,
     scrollWheelZoom: false,
+    zoomControl: false,
 }
 
 const EMPTY_CURSOR = {visible: false, px: 0, py: 0, cell: ''}
@@ -110,6 +111,8 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
 
     onMounted(async () => {
         map.value = L.map(container.value, MAP_OPTIONS)
+
+        L.control.zoom({position: 'bottomleft'}).addTo(map.value)
 
         detachZoom = attachSmoothZoom(map.value)
 

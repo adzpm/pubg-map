@@ -13,9 +13,9 @@ const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: t
 
 <template>
   <div class="d-flex flex-column flex-shrink-0 overflow-auto py-3 gap-3">
-    <div class="px-3 d-flex align-items-center gap-2 fw-medium">
-      <i class="bi bi-map"></i>
-      <span>PUBG maps</span>
+    <div class="px-3 d-flex gap-1">
+      <span class="fw-bold">PUBG</span>
+      <span>Maps</span>
     </div>
     <div class="d-flex flex-column gap-2">
       <h6 class="text-secondary text-uppercase px-3 m-0 small">Map</h6>

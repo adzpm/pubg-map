@@ -20,8 +20,17 @@ const selectMap = (map) => {
 </script>
 
 <template>
-    <div class="d-flex flex-column flex-md-row vh-100">
+    <div class="position-relative vh-100 overflow-hidden">
+        <main class="d-flex flex-column h-100">
+            <MapViewer
+                :current-map="currentMap"
+                :grid-visible="gridVisible"
+                :secrets-visible="secretsVisible"
+                @cursor="cursor = $event"
+            />
+        </main>
         <AppNavbar
+            class="floating-sidebar position-absolute top-0 start-0 m-3 rounded-4 border shadow"
             :maps="MAPS"
             :current-map="currentMap"
             :secrets-available="hasSecrets"
@@ -29,14 +38,9 @@ const selectMap = (map) => {
             v-model:secrets-visible="secretsVisible"
             @select="selectMap"
         />
-        <main class="d-flex flex-column flex-grow-1">
-            <MapViewer
-                :current-map="currentMap"
-                :grid-visible="gridVisible"
-                :secrets-visible="secretsVisible"
-                @cursor="cursor = $event"
-            />
-            <StatusBar :cursor="cursor"/>
-        </main>
+        <StatusBar
+            class="position-absolute bottom-0 end-0 m-3"
+            :cursor="cursor"
+        />
     </div>
 </template>
