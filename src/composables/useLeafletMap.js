@@ -10,6 +10,7 @@ const MAP_OPTIONS = {
     crs: L.CRS.Simple,
     zoomSnap: 0,
     zoomDelta: 0.5,
+    zoomControl: false,
     attributionControl: false,
     scrollWheelZoom: false,
     zoomControl: false,

@@ -13,8 +13,7 @@ Leaflet do what it does best. Then layer game data on top.
 
 ## Features
 
-- **All eleven current Battlegrounds maps** — Erangel, Miramar, Taego, Deston, Rondo, Sanhok, Paramo, Karakin, Haven,
-  Training, Camp Jackal.
+- **All Battlegrounds maps** — Erangel, Miramar, Taego, Deston, Rondo, Sanhok, Paramo, Karakin.
 - **Deep-zoom tile pipeline** — source PNGs are sliced with `libvips` into Google-layout WebP pyramids (Q=92), so
   panning and zooming stays sharp from the world view down to the pixel.
 - **Live grid + cell highlight** — main grid (A–H × 1–8) plus 10× sub-divisions, a hovered cell is highlighted in real
