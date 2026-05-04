@@ -24,7 +24,7 @@ const layersCollapsed = usePersistentRef('sidebar.layersCollapsed', false)
             @click="collapsed = !collapsed"
             :aria-expanded="!collapsed"
             aria-label="Toggle sidebar">
-      <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 small lh-1"
+      <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
             style="width: 1.75rem; height: 1.75rem;">
         <i class="bi" :class="collapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
       </span>
@@ -35,34 +35,34 @@ const layersCollapsed = usePersistentRef('sidebar.layersCollapsed', false)
     <template v-if="!collapsed">
       <div class="d-flex flex-column gap-2">
         <button type="button"
-                class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-2 py-1 w-100 text-start rounded-0"
+                class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="mapsCollapsed = !mapsCollapsed"
                 :aria-expanded="!mapsCollapsed">
-          <span class="text-secondary text-uppercase small fw-semibold ps-1">Map</span>
-          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 small lh-1"
+          <span class="text-secondary text-uppercase fw-semibold">Map</span>
+          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
                 style="width: 1.75rem; height: 1.75rem;">
             <i class="bi" :class="mapsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
           </span>
         </button>
         <div class="d-flex flex-column" v-if="!mapsCollapsed">
           <a href="#"
-             class="px-3 py-2 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
+             class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
              @click.prevent="$emit('select', map)"
              :class="map.id === currentMap.id ? 'text-bg-light link-dark' : ''"
              v-for="map in maps" :key="map.id">
             <span>{{ map.name }}</span>
-            <span class="small opacity-50">{{ map.cells.x }}×{{ map.cells.y }}</span>
+            <span class="opacity-50">{{ map.cells.x }}×{{ map.cells.y }}</span>
           </a>
         </div>
       </div>
 
-      <div class="d-flex flex-column gap-2">
+      <div class="">
         <button type="button"
-                class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-2 py-1 w-100 text-start rounded-0"
+                class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="layersCollapsed = !layersCollapsed"
                 :aria-expanded="!layersCollapsed">
-          <span class="text-secondary text-uppercase small fw-semibold ps-1">Layers</span>
-          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 small lh-1"
+          <span class="text-secondary text-uppercase fw-semibold">Layers</span>
+          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
                 style="width: 1.75rem; height: 1.75rem;">
             <i class="bi" :class="layersCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
           </span>
