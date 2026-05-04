@@ -4,8 +4,8 @@ import {MAPS} from '@/data/maps'
 import {SECRET_ROOMS} from '@/data/secrets'
 import {usePersistentRef} from '@/composables/usePersistentRef'
 import AppSidebar from '@/components/AppSidebar.vue'
-import MapViewer from '@/components/MapViewer.vue'
-import StatusBar from '@/components/StatusBar.vue'
+import AppMapViewer from '@/components/AppMapViewer.vue'
+import AppStatusBar from '@/components/AppStatusBar.vue'
 
 const currentMapId = usePersistentRef('currentMapId', MAPS[0].id)
 const initialMap = MAPS.find((m) => m.id === currentMapId.value) ?? MAPS[0]
@@ -31,7 +31,7 @@ const selectMap = (map) => {
 <template>
     <div class="position-relative vh-100 overflow-hidden">
         <main class="d-flex flex-column h-100">
-            <MapViewer
+            <AppMapViewer
                 :current-map="currentMap"
                 :grid-visible="gridVisible"
                 :secrets-visible="secretsVisible"
@@ -39,7 +39,7 @@ const selectMap = (map) => {
             />
         </main>
         <AppSidebar
-            class="floating-sidebar position-absolute top-0 start-0 m-3 rounded-4 border shadow"
+            class="floating-panel floating-sidebar position-absolute top-0 start-0 m-3"
             :maps="MAPS"
             :current-map="currentMap"
             :secrets-available="hasSecrets"
@@ -47,8 +47,8 @@ const selectMap = (map) => {
             v-model:secrets-visible="secretsVisible"
             @select="selectMap"
         />
-        <StatusBar
-            class="position-absolute bottom-0 end-0 m-3"
+        <AppStatusBar
+            class="floating-panel position-absolute bottom-0 end-0 m-3"
             :cursor="cursor"
         />
     </div>
