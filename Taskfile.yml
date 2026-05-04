@@ -92,3 +92,28 @@ tasks:
     desc: Stop docker-compose service
     cmds:
       - docker compose -f docker/docker-compose.yml down
+
+  electron:install:
+    desc: Install Electron overlay dependencies
+    dir: electron
+    cmds:
+      - npm install
+
+  electron:dev:
+    desc: Run Electron overlay locally
+    deps: [ electron:install ]
+    dir: electron
+    cmds:
+      - npm start
+
+  electron:build:
+    desc: Build Windows installer (NSIS) and portable .exe into electron/dist
+    deps: [ electron:install ]
+    dir: electron
+    cmds:
+      - npm run build
+
+  electron:clean:
+    desc: Remove Electron build artefacts and node_modules
+    cmds:
+      - rm -rf electron/dist electron/node_modules
