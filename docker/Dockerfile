@@ -2,13 +2,13 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY web/package.json web/package-lock.json* ./
 
 RUN npm ci || npm install
 
-COPY index.html vite.config.js ./
+COPY web/index.html web/vite.config.js ./
 
-COPY src ./src
+COPY web/src ./src
 
 RUN npm run build
 
@@ -18,4 +18,4 @@ COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-COPY public/assets/tiles /usr/share/nginx/html/assets/tiles
+COPY web/public/assets/tiles /usr/share/nginx/html/assets/tiles

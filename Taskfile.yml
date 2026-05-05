@@ -16,36 +16,40 @@ tasks:
 
   install:
     desc: Install npm dependencies
+    dir: web
     cmds:
       - npm install
 
   dev:
     desc: Run Vite dev server with HMR
     deps: [ install ]
+    dir: web
     cmds:
       - npm run dev
 
   build:
-    desc: Build production bundle into dist/
+    desc: Build production bundle into web/dist/
     deps: [ install ]
+    dir: web
     cmds:
       - npm run build
 
   preview:
     desc: Preview production build locally
     deps: [ build ]
+    dir: web
     cmds:
       - npm run preview
 
   tiles:generate:
-    desc: Generate map tiles from assets/maps/*.png into public/assets/tiles
+    desc: Generate map tiles from assets/maps/*.png into web/public/assets/tiles
     cmds:
       - ./scripts/build-tiles.sh
 
   tiles:clean:
     desc: Remove generated tiles
     cmds:
-      - rm -rf public/assets/tiles
+      - rm -rf web/public/assets/tiles
 
   tiles:lint:
     desc: List maps that have source PNG but no generated tiles
@@ -57,7 +61,7 @@ tasks:
           base=$(basename "$src" .png)
           id=$(echo "$base" | tr '[:upper:]' '[:lower:]')
 
-          if [ ! -d "public/assets/tiles/$id" ]; then
+          if [ ! -d "web/public/assets/tiles/$id" ]; then
             echo "[WARN] Missing tiles: $id"
           fi
         done
@@ -65,7 +69,7 @@ tasks:
   clean:
     desc: Remove build artefacts and node_modules
     cmds:
-      - rm -rf dist node_modules .vite
+      - rm -rf web/dist web/node_modules web/.vite
 
   docker:build:
     desc: Build Docker image
@@ -95,25 +99,25 @@ tasks:
 
   electron:install:
     desc: Install Electron overlay dependencies
-    dir: electron
+    dir: overlay
     cmds:
       - npm install
 
   electron:dev:
     desc: Run Electron overlay locally
-    deps: [ electron:install ]
-    dir: electron
+    deps: [ overlay:install ]
+    dir: overlay
     cmds:
       - npm start
 
   electron:build:
-    desc: Build Windows installer (NSIS) and portable .exe into electron/dist
-    deps: [ electron:install ]
-    dir: electron
+    desc: Build Windows installer (NSIS) and portable .exe into overlay/dist
+    deps: [ overlay:install ]
+    dir: overlay
     cmds:
       - npm run build
 
   electron:clean:
     desc: Remove Electron build artefacts and node_modules
     cmds:
-      - rm -rf electron/dist electron/node_modules
+      - rm -rf overlay/dist overlay/node_modules

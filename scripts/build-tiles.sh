@@ -4,14 +4,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-mkdir -p public/assets/tiles
+mkdir -p web/public/assets/tiles
 
 shopt -s nullglob
 
 for src in assets/maps/*.png; do
     base=$(basename "$src" .png)
     id=$(echo "$base" | tr '[:upper:]' '[:lower:]')
-    out="public/assets/tiles/$id"
+    out="web/public/assets/tiles/$id"
 
     if [ -d "$out" ]; then
         echo "[WARN] Skip: $id (already tiled, delete $out to regenerate)"
