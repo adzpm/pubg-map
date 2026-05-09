@@ -12,6 +12,7 @@ export const buildSecretRoomsLayer = (mapId, toLL) => {
     })
 
     for (const p of SECRET_ROOMS[mapId] || []) {
+        if (!p || typeof p.x !== 'number' || typeof p.y !== 'number') continue
         const marker = L.marker(toLL(p.x, p.y), {icon, riseOnHover: true})
         if (p.name) marker.bindTooltip(p.name, {direction: 'top', offset: [0, -12]})
         marker.addTo(layer)

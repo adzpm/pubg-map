@@ -13,12 +13,11 @@ const MAP_OPTIONS = {
     zoomControl: false,
     attributionControl: false,
     scrollWheelZoom: false,
-    zoomControl: false,
 }
 
 const EMPTY_CURSOR = {visible: false, px: 0, py: 0, cell: ''}
 
-export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisible}, onCursor) => {
+export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisible}, onCursor, onMapClick) => {
     const map = shallowRef(null)
 
     let baseLayer = null
@@ -123,6 +122,14 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
             onCursor(EMPTY_CURSOR)
         })
         map.value.on('resize', applyMinZoom)
+        map.value.on('click', (e) => {
+            if (!dims || !onMapClick) return
+            const pt = map.value.project(e.latlng, dims.maxZ)
+            const px = Math.round(pt.x)
+            const py = Math.round(pt.y)
+            if (px < 0 || py < 0 || px > dims.w || py > dims.h) return
+            onMapClick({x: px, y: py})
+        })
 
         await showMap(currentMap.value)
     })

@@ -5,6 +5,8 @@ defineProps({
   maps: {type: Array, required: true},
   currentMap: {type: Object, required: true},
   secretsAvailable: {type: Boolean, default: false},
+  devMode: {type: Boolean, default: false},
+  devTools: {type: Array, default: () => []},
 })
 
 defineEmits(['select'])
@@ -15,6 +17,7 @@ const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: t
 const collapsed = usePersistentRef('sidebar.collapsed', false)
 const mapsCollapsed = usePersistentRef('sidebar.mapsCollapsed', false)
 const layersCollapsed = usePersistentRef('sidebar.layersCollapsed', false)
+const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
 </script>
 
 <template>
@@ -76,6 +79,30 @@ const layersCollapsed = usePersistentRef('sidebar.layersCollapsed', false)
             <label class="form-check-label" for="switchSecrets" :class="{'opacity-50': !secretsAvailable}">Secrets</label>
             <input class="form-check-input" type="checkbox" role="switch" id="switchSecrets"
                    :disabled="!secretsAvailable" v-model="secretsVisible">
+          </div>
+        </div>
+      </div>
+
+      <div v-if="devMode && devTools.length">
+        <button type="button"
+                class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
+                @click="devToolsCollapsed = !devToolsCollapsed"
+                :aria-expanded="!devToolsCollapsed">
+          <span class="text-secondary text-uppercase fw-semibold">Dev Tools</span>
+          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
+                style="width: 1.75rem; height: 1.75rem;">
+            <i class="bi" :class="devToolsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+          </span>
+        </button>
+        <div class="d-flex flex-column gap-1 px-3" v-if="!devToolsCollapsed">
+          <div v-for="entry in devTools" :key="entry.tool.id"
+               class="form-check form-switch m-0 d-flex justify-content-between align-items-center ps-0">
+            <label class="form-check-label" :for="`devTool-${entry.tool.id}`"
+                   :title="entry.tool.description">{{ entry.tool.name }}</label>
+            <input class="form-check-input" type="checkbox" role="switch"
+                   :id="`devTool-${entry.tool.id}`"
+                   :checked="entry.enabled.value"
+                   @change="entry.enabled.value = $event.target.checked">
           </div>
         </div>
       </div>

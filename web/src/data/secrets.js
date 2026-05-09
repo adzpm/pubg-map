@@ -91,5 +91,17 @@ export const SECRET_ROOMS = {
         { x: 3405, y: 7040, name: 'Secret room' },
         { x: 4969, y: 7425, name: 'Secret room' },
     ],
-    vikendi: [],
+    vikendi: [
+        { x: 3977, y: 6583, name: 'Secret room' },
+        { x: 2394, y: 5664, name: 'Secret room' },
+        { x: 6109, y: 5912, name: 'Secret room' },
+        { x: 4742, y: 4983, name: 'Secret room' },
+        { x: 1401, y: 3869, name: 'Secret room' },
+        { x: 4133, y: 3235, name: 'Secret room' },
+        { x: 6890, y: 3905, name: 'Secret room' },
+        { x: 2767, y: 1590, name: 'Secret room' },
+        { x: 6295, y: 2473, name: 'Secret room' },
+        { x: 5446, y: 1323, name: 'Secret room' },
+        {},
+    ],
 }
