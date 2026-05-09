@@ -35,6 +35,13 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         return dims.maxZ + Math.log2(containerH / dims.h)
     }
 
+    const fitZoomByWidth = () => {
+        if (!map.value || !dims) return 0
+        const containerW = map.value.getSize().x
+        if (containerW <= 0 || dims.w <= 0) return 0
+        return dims.maxZ + Math.log2(containerW / dims.w)
+    }
+
     const applyMinZoom = () => {
         if (!map.value || !mapBounds) return
         const minZoom = fitZoomByHeight()
@@ -84,8 +91,9 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         map.value.setMaxBounds(bounds)
 
         const minZoom = fitZoomByHeight()
+        const initZoom = Math.max(fitZoomByWidth(), minZoom)
         map.value.setMinZoom(minZoom)
-        map.value.setView(bounds.getCenter(), minZoom, {animate: false})
+        map.value.setView(bounds.getCenter(), initZoom, {animate: false})
     }
 
     const updateCursor = (e) => {
