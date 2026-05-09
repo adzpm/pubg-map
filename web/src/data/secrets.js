@@ -91,4 +91,5 @@ export const SECRET_ROOMS = {
         { x: 3405, y: 7040, name: 'Secret room' },
         { x: 4969, y: 7425, name: 'Secret room' },
     ],
+    vikendi: [],
 }
