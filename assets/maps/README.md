@@ -8,6 +8,7 @@ Place here all the high-res maps in PNG format.
 - erangel.png
 - karakin.png
 - miramar.png
+- vikendi.png
 - paramo.png
 - rondo.png
 - sanhok.png

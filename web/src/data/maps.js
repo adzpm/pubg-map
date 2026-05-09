@@ -5,13 +5,18 @@ export const MAPS = [
         cells: {x: 8, y: 8},
     },
     {
-        id: 'taego',
-        name: 'Taego',
+        id: 'miramar',
+        name: 'Miramar',
         cells: {x: 8, y: 8},
     },
     {
-        id: 'miramar',
-        name: 'Miramar',
+        id: 'vikendi',
+        name: 'Vikendi',
+        cells: {x: 8, y: 8},
+    },
+    {
+        id: 'taego',
+        name: 'Taego',
         cells: {x: 8, y: 8},
     },
     {
