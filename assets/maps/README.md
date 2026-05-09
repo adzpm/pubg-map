@@ -13,5 +13,4 @@ Place here all the high-res maps in PNG format.
 - rondo.png
 - sanhok.png
 - taego.png
-- training.png
 - etc ...
