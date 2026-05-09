@@ -1,4 +1,4 @@
-import {TILE_SIZE} from '@/config'
+export const TILE_SIZE = 256
 
 export const tileUrlTemplate = (id) =>
     `${import.meta.env.BASE_URL}assets/tiles/${id}/{z}/{y}/{x}.webp`

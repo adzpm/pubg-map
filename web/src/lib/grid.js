@@ -1,5 +1,6 @@
 import L from 'leaflet'
-import {SUBDIV} from '@/config'
+
+const SUBDIV = 10
 
 const SUB_STYLE = {
     color: '#fff',

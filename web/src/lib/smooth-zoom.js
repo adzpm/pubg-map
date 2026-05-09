@@ -1,62 +1,70 @@
 import L from 'leaflet'
-import {PINCH_SETTLE_MS, PINCH_SENSITIVITY} from '@/config'
 
-export const attachSmoothZoom = (map) => {
-    const container = map.getContainer()
-    const pane = map.getPane('mapPane')
+L.Map.mergeOptions({
+    smoothZoom: false,
+    smoothZoomSensitivity: 0.005,
+    smoothZoomSettleMs: 140,
+})
 
-    let active = false
-    let scale = 1
-    let baseZoom = 0
-    let originX = 0
-    let originY = 0
-    let timer = null
+L.Map.SmoothZoom = L.Handler.extend({
+    addHooks: function () {
+        L.DomEvent.on(this._map.getContainer(), 'wheel', this._onWheel, this)
+    },
 
-    const apply = () => {
-        const pos = L.DomUtil.getPosition(pane)
-        pane.style.transformOrigin = `${originX - pos.x}px ${originY - pos.y}px`
-        pane.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${scale})`
-    }
+    removeHooks: function () {
+        L.DomEvent.off(this._map.getContainer(), 'wheel', this._onWheel, this)
+        clearTimeout(this._timer)
+    },
 
-    const settle = () => {
-        if (!active) return
-        active = false
-        const target = Math.max(
-            map.getMinZoom(),
-            Math.min(map.getMaxZoom(), baseZoom + Math.log2(scale)),
-        )
-        pane.style.transformOrigin = ''
-        L.DomUtil.setPosition(pane, L.DomUtil.getPosition(pane))
-        map.setZoomAround(L.point(originX, originY), target, {animate: false})
-        scale = 1
-    }
+    _onWheel: function (e) {
+        L.DomEvent.preventDefault(e)
 
-    const onWheel = (e) => {
-        e.preventDefault()
-        const r = container.getBoundingClientRect()
-        originX = e.clientX - r.left
-        originY = e.clientY - r.top
+        const map = this._map
+        const rect = map.getContainer().getBoundingClientRect()
+        this._originX = e.clientX - rect.left
+        this._originY = e.clientY - rect.top
 
-        if (!active) {
-            active = true
-            scale = 1
-            baseZoom = map.getZoom()
+        if (!this._active) {
+            this._active = true
+            this._scale = 1
+            this._baseZoom = map.getZoom()
         }
 
-        scale *= Math.exp(-e.deltaY * PINCH_SENSITIVITY)
-        const minS = Math.pow(2, map.getMinZoom() - baseZoom)
-        const maxS = Math.pow(2, map.getMaxZoom() - baseZoom)
-        scale = Math.max(minS, Math.min(maxS, scale))
+        this._scale *= Math.exp(-e.deltaY * map.options.smoothZoomSensitivity)
+        const minS = Math.pow(2, map.getMinZoom() - this._baseZoom)
+        const maxS = Math.pow(2, map.getMaxZoom() - this._baseZoom)
+        this._scale = Math.max(minS, Math.min(maxS, this._scale))
 
-        apply()
-        clearTimeout(timer)
-        timer = setTimeout(settle, PINCH_SETTLE_MS)
-    }
+        this._apply()
 
-    container.addEventListener('wheel', onWheel, {passive: false})
+        clearTimeout(this._timer)
+        this._timer = setTimeout(L.Util.bind(this._settle, this), map.options.smoothZoomSettleMs)
+    },
 
-    return () => {
-        clearTimeout(timer)
-        container.removeEventListener('wheel', onWheel)
-    }
-}
+    _apply: function () {
+        const pane = this._map.getPane('mapPane')
+        const pos = L.DomUtil.getPosition(pane)
+        pane.style.transformOrigin = `${this._originX - pos.x}px ${this._originY - pos.y}px`
+        pane.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${this._scale})`
+    },
+
+    _settle: function () {
+        if (!this._active) return
+        this._active = false
+
+        const map = this._map
+        const target = Math.max(
+            map.getMinZoom(),
+            Math.min(map.getMaxZoom(), this._baseZoom + Math.log2(this._scale)),
+        )
+
+        const pane = map.getPane('mapPane')
+        pane.style.transformOrigin = ''
+        L.DomUtil.setPosition(pane, L.DomUtil.getPosition(pane))
+
+        map.setZoomAround(L.point(this._originX, this._originY), target, {animate: false})
+        this._scale = 1
+    },
+})
+
+L.Map.addInitHook('addHandler', 'smoothZoom', L.Map.SmoothZoom)

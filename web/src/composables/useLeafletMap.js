@@ -1,10 +1,11 @@
 import {onMounted, onBeforeUnmount, watch, shallowRef} from 'vue'
 import L from 'leaflet'
-import {ZOOM_HEADROOM, TILE_SIZE} from '@/config'
-import {computeMaxNativeZoom, fetchTileInfo, tileUrlTemplate} from '@/lib/tiles'
+import {computeMaxNativeZoom, fetchTileInfo, tileUrlTemplate, TILE_SIZE} from '@/lib/tiles'
 import {buildGridLayer, createCellHighlight} from '@/lib/grid'
 import {buildSecretRoomsLayer} from '@/lib/secrets'
-import {attachSmoothZoom} from '@/lib/smooth-zoom'
+import '@/lib/smooth-zoom'
+
+const ZOOM_HEADROOM = 8
 
 const MAP_OPTIONS = {
     crs: L.CRS.Simple,
@@ -13,6 +14,9 @@ const MAP_OPTIONS = {
     zoomControl: false,
     attributionControl: false,
     scrollWheelZoom: false,
+    smoothZoom: true,
+    smoothZoomSensitivity: 0.005,
+    smoothZoomSettleMs: 140,
 }
 
 const EMPTY_CURSOR = {visible: false, px: 0, py: 0, cell: ''}
@@ -26,7 +30,6 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     let highlight = null
     let dims = null
     let mapBounds = null
-    let detachZoom = null
 
     const fitZoomByHeight = () => {
         if (!map.value || !dims) return 0
@@ -129,8 +132,6 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     onMounted(async () => {
         map.value = L.map(container.value, MAP_OPTIONS)
 
-        detachZoom = attachSmoothZoom(map.value)
-
         map.value.on('mousemove', updateCursor)
         map.value.on('mouseout', () => {
             highlight?.hide(map.value)
@@ -150,7 +151,6 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     })
 
     onBeforeUnmount(() => {
-        detachZoom?.()
         map.value?.remove()
         map.value = null
     })
