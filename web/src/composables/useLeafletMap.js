@@ -28,9 +28,16 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     let mapBounds = null
     let detachZoom = null
 
+    const fitZoomByHeight = () => {
+        if (!map.value || !dims) return 0
+        const containerH = map.value.getSize().y
+        if (containerH <= 0 || dims.h <= 0) return 0
+        return dims.maxZ + Math.log2(containerH / dims.h)
+    }
+
     const applyMinZoom = () => {
         if (!map.value || !mapBounds) return
-        const minZoom = map.value.getBoundsZoom(mapBounds, true)
+        const minZoom = fitZoomByHeight()
         map.value.setMinZoom(minZoom)
         if (map.value.getZoom() < minZoom) map.value.setZoom(minZoom)
     }
@@ -76,7 +83,7 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         map.value.setMaxZoom(maxZoom)
         map.value.setMaxBounds(bounds)
 
-        const minZoom = map.value.getBoundsZoom(bounds, true)
+        const minZoom = fitZoomByHeight()
         map.value.setMinZoom(minZoom)
         map.value.setView(bounds.getCenter(), minZoom, {animate: false})
     }
@@ -111,8 +118,6 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
 
     onMounted(async () => {
         map.value = L.map(container.value, MAP_OPTIONS)
-
-        L.control.zoom({position: 'bottomleft'}).addTo(map.value)
 
         detachZoom = attachSmoothZoom(map.value)
 
