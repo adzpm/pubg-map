@@ -13,6 +13,7 @@ defineEmits(['select'])
 
 const gridVisible = defineModel('gridVisible', {type: Boolean, required: true})
 const secretsVisible = defineModel('secretsVisible', {type: Boolean, required: true})
+const statusBarVisible = defineModel('statusBarVisible', {type: Boolean, required: true})
 
 const collapsed = usePersistentRef('sidebar.collapsed', false)
 const mapsCollapsed = usePersistentRef('sidebar.mapsCollapsed', false)
@@ -27,8 +28,7 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
             @click="collapsed = !collapsed"
             :aria-expanded="!collapsed"
             aria-label="Toggle sidebar">
-      <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
-            style="width: 1.75rem; height: 1.75rem;">
+      <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 lh-1">
         <i class="bi" :class="collapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
       </span>
       <span class="fw-bold ms-1">PUBG</span>
@@ -45,8 +45,7 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
             <i class="bi bi-map"></i>
             <span>Map</span>
           </span>
-          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
-                style="width: 1.75rem; height: 1.75rem;">
+          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 lh-1">
             <i class="bi" :class="mapsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
           </span>
         </button>
@@ -74,8 +73,7 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
             <i class="bi bi-stack"></i>
             <span>Layers</span>
           </span>
-          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
-                style="width: 1.75rem; height: 1.75rem;">
+          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 lh-1">
             <i class="bi" :class="layersCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
           </span>
         </button>
@@ -102,7 +100,7 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
         </div>
       </div>
 
-      <div class="d-flex flex-column" v-if="devMode && devTools.length">
+      <div class="d-flex flex-column" v-if="devMode">
         <button type="button"
                 class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="devToolsCollapsed = !devToolsCollapsed"
@@ -111,12 +109,20 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
             <i class="bi bi-tools"></i>
             <span>Dev Tools</span>
           </span>
-          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
-                style="width: 1.75rem; height: 1.75rem;">
+          <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 lh-1">
             <i class="bi" :class="devToolsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
           </span>
         </button>
         <div class="d-flex flex-column" v-if="!devToolsCollapsed">
+          <a href="#"
+             class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
+             :class="statusBarVisible ? 'text-bg-light link-dark' : ''"
+             @click.prevent="statusBarVisible = !statusBarVisible">
+            <span class="d-inline-flex align-items-center gap-2">
+              <i class="bi bi-info-circle"></i>
+              <span>Status bar</span>
+            </span>
+          </a>
           <a href="#"
              v-for="entry in devTools" :key="entry.tool.id"
              class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"

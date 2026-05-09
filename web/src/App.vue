@@ -16,6 +16,7 @@ currentMapId.value = currentMap.value.id
 
 const gridVisible = usePersistentRef('gridVisible', true)
 const secretsVisible = usePersistentRef('secretsVisible', true)
+const statusBarVisible = usePersistentRef('statusBarVisible', true)
 const cursor = ref({visible: false, px: 0, py: 0, cell: ''})
 
 const hasSecrets = computed(() => (SECRET_ROOMS[currentMap.value.id] ?? []).length > 0)
@@ -60,9 +61,11 @@ const onMapClick = (point) => {
         :dev-tools="devTools"
         v-model:grid-visible="gridVisible"
         v-model:secrets-visible="secretsVisible"
+        v-model:status-bar-visible="statusBarVisible"
         @select="selectMap"
     />
     <AppStatusBar
+        v-if="devMode && statusBarVisible"
         class="floating-panel position-absolute bottom-0 end-0 m-3"
         :cursor="cursor"
     />
