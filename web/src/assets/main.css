@@ -41,13 +41,9 @@ input, textarea, [contenteditable="true"] {
     filter: drop-shadow(0 0 1px rgba(0, 0, 0, 1));
 }
 
-.secret-room-marker {
-    background: transparent;
-    border: 2px solid var(--bs-warning);
-}
-
 .pubg-grid-label {
     color: var(--bs-body-color);
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 1));
     user-select: none;
     display: flex;
     align-items: center;
