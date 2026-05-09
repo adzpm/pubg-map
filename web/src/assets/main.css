@@ -57,6 +57,9 @@ input, textarea, [contenteditable="true"] {
 
 .floating-sidebar {
     max-height: calc(100vh - 2.5rem);
+    width: max-content;
+    min-width: min(250px, calc(100vw - 2rem));
+    max-width: calc(100vw - 2rem);
     transition: background-color 0.2s ease;
 }
 
