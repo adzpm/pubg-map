@@ -41,7 +41,10 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
                 class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="mapsCollapsed = !mapsCollapsed"
                 :aria-expanded="!mapsCollapsed">
-          <span class="text-secondary text-uppercase fw-semibold">Map</span>
+          <span class="text-secondary text-uppercase fw-semibold d-inline-flex align-items-center gap-2">
+            <i class="bi bi-map"></i>
+            <span>Map</span>
+          </span>
           <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
                 style="width: 1.75rem; height: 1.75rem;">
             <i class="bi" :class="mapsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
@@ -53,7 +56,10 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
              @click.prevent="$emit('select', map)"
              :class="map.id === currentMap.id ? 'text-bg-light link-dark' : ''"
              v-for="map in maps" :key="map.id">
-            <span>{{ map.name }}</span>
+            <span class="d-inline-flex align-items-center gap-2">
+              <i class="bi bi-geo-alt"></i>
+              <span>{{ map.name }}</span>
+            </span>
             <span class="opacity-50">{{ map.cells.x }}×{{ map.cells.y }}</span>
           </a>
         </div>
@@ -64,7 +70,10 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
                 class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="layersCollapsed = !layersCollapsed"
                 :aria-expanded="!layersCollapsed">
-          <span class="text-secondary text-uppercase fw-semibold">Layers</span>
+          <span class="text-secondary text-uppercase fw-semibold d-inline-flex align-items-center gap-2">
+            <i class="bi bi-stack"></i>
+            <span>Layers</span>
+          </span>
           <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
                 style="width: 1.75rem; height: 1.75rem;">
             <i class="bi" :class="layersCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
@@ -75,14 +84,20 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
              class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
              :class="gridVisible ? 'text-bg-light link-dark' : ''"
              @click.prevent="gridVisible = !gridVisible">
-            <span>Grid</span>
+            <span class="d-inline-flex align-items-center gap-2">
+              <i class="bi bi-grid-3x3"></i>
+              <span>Grid</span>
+            </span>
           </a>
           <a href="#"
              class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
              :class="[secretsVisible ? 'text-bg-light link-dark' : '', !secretsAvailable ? 'opacity-50 pe-none' : '']"
              :aria-disabled="!secretsAvailable"
              @click.prevent="secretsAvailable && (secretsVisible = !secretsVisible)">
-            <span>Secrets</span>
+            <span class="d-inline-flex align-items-center gap-2">
+              <i class="bi bi-key"></i>
+              <span>Secrets</span>
+            </span>
           </a>
         </div>
       </div>
@@ -92,7 +107,10 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
                 class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="devToolsCollapsed = !devToolsCollapsed"
                 :aria-expanded="!devToolsCollapsed">
-          <span class="text-secondary text-uppercase fw-semibold">Dev Tools</span>
+          <span class="text-secondary text-uppercase fw-semibold d-inline-flex align-items-center gap-2">
+            <i class="bi bi-tools"></i>
+            <span>Dev Tools</span>
+          </span>
           <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded bg-secondary bg-opacity-25 lh-1"
                 style="width: 1.75rem; height: 1.75rem;">
             <i class="bi" :class="devToolsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
@@ -105,7 +123,10 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
              :class="entry.enabled.value ? 'text-bg-light link-dark' : ''"
              :title="entry.tool.description"
              @click.prevent="entry.enabled.value = !entry.enabled.value">
-            <span>{{ entry.tool.name }}</span>
+            <span class="d-inline-flex align-items-center gap-2">
+              <i class="bi" :class="entry.tool.icon || 'bi-gear'"></i>
+              <span>{{ entry.tool.name }}</span>
+            </span>
           </a>
         </div>
       </div>

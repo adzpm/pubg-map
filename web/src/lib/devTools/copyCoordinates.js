@@ -19,6 +19,7 @@ export const copyCoordinatesTool = {
     id: 'copyCoordinates',
     name: 'Copy coordinates',
     description: 'Click anywhere on the map to copy { x, y, name } JSON',
+    icon: 'bi-clipboard',
     defaultEnabled: true,
     handlers: {
         onMapClick: async ({x, y}) => {
