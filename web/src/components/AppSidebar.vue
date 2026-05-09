@@ -36,7 +36,7 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
     </button>
 
     <template v-if="!collapsed">
-      <div class="d-flex flex-column gap-2">
+      <div class="d-flex flex-column">
         <button type="button"
                 class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="mapsCollapsed = !mapsCollapsed"
@@ -59,7 +59,7 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
         </div>
       </div>
 
-      <div class="">
+      <div class="d-flex flex-column">
         <button type="button"
                 class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="layersCollapsed = !layersCollapsed"
@@ -87,7 +87,7 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
         </div>
       </div>
 
-      <div v-if="devMode && devTools.length">
+      <div class="d-flex flex-column" v-if="devMode && devTools.length">
         <button type="button"
                 class="btn btn-link text-decoration-none text-body d-flex justify-content-between align-items-center gap-2 px-3 w-100 text-start rounded-0"
                 @click="devToolsCollapsed = !devToolsCollapsed"
