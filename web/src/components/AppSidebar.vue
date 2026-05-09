@@ -70,16 +70,20 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
             <i class="bi" :class="layersCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
           </span>
         </button>
-        <div class="d-flex flex-column gap-1 px-3" v-if="!layersCollapsed">
-          <div class="form-check form-switch m-0 d-flex justify-content-between align-items-center ps-0">
-            <label class="form-check-label" for="switchGrid">Grid</label>
-            <input class="form-check-input" type="checkbox" role="switch" id="switchGrid" v-model="gridVisible">
-          </div>
-          <div class="form-check form-switch m-0 d-flex justify-content-between align-items-center ps-0">
-            <label class="form-check-label" for="switchSecrets" :class="{'opacity-50': !secretsAvailable}">Secrets</label>
-            <input class="form-check-input" type="checkbox" role="switch" id="switchSecrets"
-                   :disabled="!secretsAvailable" v-model="secretsVisible">
-          </div>
+        <div class="d-flex flex-column" v-if="!layersCollapsed">
+          <a href="#"
+             class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
+             :class="gridVisible ? 'text-bg-light link-dark' : ''"
+             @click.prevent="gridVisible = !gridVisible">
+            <span>Grid</span>
+          </a>
+          <a href="#"
+             class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
+             :class="[secretsVisible ? 'text-bg-light link-dark' : '', !secretsAvailable ? 'opacity-50 pe-none' : '']"
+             :aria-disabled="!secretsAvailable"
+             @click.prevent="secretsAvailable && (secretsVisible = !secretsVisible)">
+            <span>Secrets</span>
+          </a>
         </div>
       </div>
 
@@ -94,16 +98,15 @@ const devToolsCollapsed = usePersistentRef('sidebar.devToolsCollapsed', false)
             <i class="bi" :class="devToolsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
           </span>
         </button>
-        <div class="d-flex flex-column gap-1 px-3" v-if="!devToolsCollapsed">
-          <div v-for="entry in devTools" :key="entry.tool.id"
-               class="form-check form-switch m-0 d-flex justify-content-between align-items-center ps-0">
-            <label class="form-check-label" :for="`devTool-${entry.tool.id}`"
-                   :title="entry.tool.description">{{ entry.tool.name }}</label>
-            <input class="form-check-input" type="checkbox" role="switch"
-                   :id="`devTool-${entry.tool.id}`"
-                   :checked="entry.enabled.value"
-                   @change="entry.enabled.value = $event.target.checked">
-          </div>
+        <div class="d-flex flex-column" v-if="!devToolsCollapsed">
+          <a href="#"
+             v-for="entry in devTools" :key="entry.tool.id"
+             class="px-3 py-1 link-light text-decoration-none d-flex justify-content-between align-items-center gap-3"
+             :class="entry.enabled.value ? 'text-bg-light link-dark' : ''"
+             :title="entry.tool.description"
+             @click.prevent="entry.enabled.value = !entry.enabled.value">
+            <span>{{ entry.tool.name }}</span>
+          </a>
         </div>
       </div>
     </template>
