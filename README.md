@@ -5,6 +5,7 @@ Interactive PUBG battleground maps — deep-zoom tiled imagery, a live coordinat
 [![CI](https://github.com/adzpm/pubg-map/actions/workflows/ci.yml/badge.svg)](https://github.com/adzpm/pubg-map/actions/workflows/ci.yml)
 [![Release](https://github.com/adzpm/pubg-map/actions/workflows/release.yml/badge.svg)](https://github.com/adzpm/pubg-map/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/adzpm/pubg-map?sort=semver)](https://github.com/adzpm/pubg-map/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ![screenshot.png](screenshot.png)
 
@@ -108,8 +109,9 @@ unlocks:
 
 ## Deployment
 
-The production image is a two-stage build: `node:24-alpine` builds the bundle, `nginxinc/nginx-unprivileged:1.29-alpine`
-serves it as uid 101 on port 8080, with the full tile tree baked in and a `GET /healthz` endpoint answering `ok`.
+The production image is a two-stage build: `node:24.20.0-alpine` builds the bundle,
+`nginxinc/nginx-unprivileged:1.31.4-alpine` serves it as uid 101 on port 8080, with the full tile tree baked in and a
+`GET /healthz` endpoint answering `ok`.
 
 ### Docker
 
@@ -183,3 +185,9 @@ installer with `task electron:build`. Details in [`overlay/README.md`](overlay/R
 ## Credits
 
 Map imagery comes from the official [pubg/api-assets](https://github.com/pubg/api-assets) repository.
+
+## License
+
+The code is released under the [MIT License](LICENSE). Map imagery and other PUBG: Battlegrounds assets are the
+property of KRAFTON, Inc., distributed via [pubg/api-assets](https://github.com/pubg/api-assets) under its own
+terms — the MIT license does not cover them.

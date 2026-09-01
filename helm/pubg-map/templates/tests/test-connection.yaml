@@ -11,7 +11,7 @@ spec:
   restartPolicy: Never
   containers:
     - name: wget
-      image: busybox:1.37
+      image: busybox:1.38.0
       command: ['wget']
       args:
         - '-q'
