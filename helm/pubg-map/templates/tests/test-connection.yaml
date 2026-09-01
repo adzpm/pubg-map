@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "pubg-map.fullname" . }}-test-connection
+  labels:
+    {{- include "pubg-map.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+    - name: wget
+      image: busybox:1.38.0
+      command: ['wget']
+      args:
+        - '-q'
+        - '-O-'
+        - 'http://{{ include "pubg-map.fullname" . }}:{{ .Values.service.port }}/healthz'
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 65534
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault

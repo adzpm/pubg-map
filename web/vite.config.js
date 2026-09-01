@@ -1,7 +1,7 @@
-import {fileURLToPath, URL} from 'node:url'
-import {defineConfig} from 'vite'
+import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import {VitePWA} from 'vite-plugin-pwa'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
     plugins: [
@@ -39,7 +39,7 @@ export default defineConfig({
                                 maxEntries: 4000,
                                 maxAgeSeconds: 60 * 60 * 24 * 30,
                             },
-                            cacheableResponse: {statuses: [0, 200]},
+                            cacheableResponse: { statuses: [0, 200] },
                         },
                     },
                     {
@@ -47,7 +47,7 @@ export default defineConfig({
                         handler: 'StaleWhileRevalidate',
                         options: {
                             cacheName: 'pubg-tile-info',
-                            cacheableResponse: {statuses: [0, 200]},
+                            cacheableResponse: { statuses: [0, 200] },
                         },
                     },
                 ],

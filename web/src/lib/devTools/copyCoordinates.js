@@ -1,4 +1,4 @@
-const formatPoint = ({x, y}) => `{ x: ${x}, y: ${y}, name: '...' }`
+const formatPoint = ({ x, y }) => `{ x: ${x}, y: ${y}, name: '...' }`
 
 const writeToClipboard = async (text) => {
     if (navigator.clipboard?.writeText) {
@@ -15,6 +15,7 @@ const writeToClipboard = async (text) => {
     document.body.removeChild(ta)
 }
 
+/** Dev tool: copies the clicked point (source-image pixels) as a secrets.js-ready snippet. */
 export const copyCoordinatesTool = {
     id: 'copyCoordinates',
     name: 'Copy coordinates',
@@ -22,9 +23,9 @@ export const copyCoordinatesTool = {
     icon: 'bi-clipboard',
     defaultEnabled: true,
     handlers: {
-        onMapClick: async ({x, y}) => {
+        onMapClick: async ({ x, y }) => {
             try {
-                await writeToClipboard(formatPoint({x, y}))
+                await writeToClipboard(formatPoint({ x, y }))
             } catch (err) {
                 console.error('[devTools] copyCoordinates failed', err)
             }

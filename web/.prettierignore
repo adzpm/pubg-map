@@ -1,0 +1,5 @@
+dist
+dev-dist
+public
+package-lock.json
+coverage

@@ -1,5 +1,8 @@
 import L from 'leaflet'
 
+// Side-effect module: registers a 'smoothZoom' L.Map handler that scales the map pane
+// on wheel input and settles to a real zoom level after `smoothZoomSettleMs` of inactivity.
+
 L.Map.mergeOptions({
     smoothZoom: false,
     smoothZoomSensitivity: 0.005,
@@ -53,16 +56,13 @@ L.Map.SmoothZoom = L.Handler.extend({
         this._active = false
 
         const map = this._map
-        const target = Math.max(
-            map.getMinZoom(),
-            Math.min(map.getMaxZoom(), this._baseZoom + Math.log2(this._scale)),
-        )
+        const target = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), this._baseZoom + Math.log2(this._scale)))
 
         const pane = map.getPane('mapPane')
         pane.style.transformOrigin = ''
         L.DomUtil.setPosition(pane, L.DomUtil.getPosition(pane))
 
-        map.setZoomAround(L.point(this._originX, this._originY), target, {animate: false})
+        map.setZoomAround(L.point(this._originX, this._originY), target, { animate: false })
         this._scale = 1
     },
 })

@@ -1,0 +1,142 @@
+# Default values for pubg-map.
+
+# -- Number of replicas; the site is fully static and stateless, scale freely.
+# Ignored when autoscaling.enabled is true.
+replicaCount: 1
+
+image:
+  # -- Container image repository
+  repository: ghcr.io/adzpm/pubg-map
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag; defaults to the chart appVersion when empty
+  tag: ""
+
+# -- Secrets for pulling the image from a private registry
+imagePullSecrets: []
+
+# -- Override the chart name used in resource names
+nameOverride: ""
+
+# -- Override the fully qualified resource name
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Create a dedicated ServiceAccount. Off by default: a static site never
+  # talks to the Kubernetes API, the namespace default account is enough.
+  create: false
+  # -- ServiceAccount name to use; when empty and create is false, "default" is used
+  name: ""
+
+# -- Extra annotations for the pod
+podAnnotations: {}
+
+# -- Extra labels for the pod
+podLabels: {}
+
+# -- Pod-level security context; uid/gid 101 matches the nginx-unprivileged image
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  runAsGroup: 101
+  fsGroup: 101
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Container-level security context. The root filesystem is read-only;
+# nginx only writes pid and temp files to /tmp, which is an emptyDir mount.
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  # -- Kubernetes Service type
+  type: ClusterIP
+  # -- Service port; traffic is forwarded to container port 8080 ("http")
+  port: 80
+
+ingress:
+  # -- Expose the site through an Ingress
+  enabled: false
+  # -- IngressClass name (e.g. nginx, traefik)
+  className: ""
+  # -- Extra Ingress annotations (e.g. cert-manager.io/cluster-issuer)
+  annotations: {}
+  # -- Ingress host rules
+  hosts:
+    - host: pubg-map.local
+      paths:
+        - path: /
+          pathType: Prefix
+  # -- Ingress TLS configuration
+  tls: []
+
+# -- Requests/limits sized for nginx serving static files. No cpu limit on
+# purpose: a cpu limit only adds throttling latency for a bursty static server,
+# the memory limit already bounds the pod.
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+probes:
+  # -- Liveness probe; restarts the container when nginx stops answering
+  liveness:
+    httpGet:
+      path: /healthz
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  # -- Readiness probe; gates Service traffic
+  readiness:
+    httpGet:
+      path: /healthz
+      port: http
+    initialDelaySeconds: 2
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+  # -- Optional startup probe; nginx starts in milliseconds so it is empty by
+  # default, set a probe spec here to enable it
+  startup: {}
+
+autoscaling:
+  # -- Enable a HorizontalPodAutoscaler; replicaCount is ignored when on
+  enabled: false
+  # -- Minimum replicas
+  minReplicas: 1
+  # -- Maximum replicas
+  maxReplicas: 3
+  # -- Target average CPU utilization (percent of requests)
+  targetCPUUtilizationPercentage: 80
+
+podDisruptionBudget:
+  # -- Create a PodDisruptionBudget; only useful with more than one replica
+  enabled: false
+  # -- Minimum pods that must stay available during voluntary disruptions
+  minAvailable: 1
+
+# -- Node labels the pods must match
+nodeSelector: {}
+
+# -- Tolerations for the pods
+tolerations: []
+
+# -- Affinity rules for the pods
+affinity: {}
+
+# -- Topology spread constraints for the pods
+topologySpreadConstraints: []
+
+# -- Extra environment variables for the nginx container
+extraEnv: []
+
+# -- PriorityClass name for the pods
+priorityClassName: ""

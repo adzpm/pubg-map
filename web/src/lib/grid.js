@@ -26,11 +26,12 @@ const HIGHLIGHT_STYLE = {
     interactive: false,
 }
 
-const cellSize = (cells, w, h) => ({cw: w / cells.x, ch: h / cells.y})
+const cellSize = (cells, w, h) => ({ cw: w / cells.x, ch: h / cells.y })
 
+/** Builds the lettered grid overlay; w/h are source-image pixels, toLL projects them at maxNativeZoom. */
 export const buildGridLayer = (cells, w, h, toLL) => {
     const layer = L.layerGroup()
-    const {cw, ch} = cellSize(cells, w, h)
+    const { cw, ch } = cellSize(cells, w, h)
 
     for (let i = 0; i < cells.x; i++) {
         for (let k = 1; k < SUBDIV; k++) {
@@ -81,13 +82,11 @@ export const buildGridLayer = (cells, w, h, toLL) => {
     return layer
 }
 
+/** Creates a show(map, col, row)/hide(map) controller for the hovered-cell rectangle; same conventions as buildGridLayer. */
 export const createCellHighlight = (cells, w, h, toLL) => {
-    const {cw, ch} = cellSize(cells, w, h)
+    const { cw, ch } = cellSize(cells, w, h)
 
-    const cellBounds = (col, row) => L.latLngBounds(
-        toLL(col * cw, (row + 1) * ch),
-        toLL((col + 1) * cw, row * ch),
-    )
+    const cellBounds = (col, row) => L.latLngBounds(toLL(col * cw, (row + 1) * ch), toLL((col + 1) * cw, row * ch))
 
     let rectangle = null
     let current = null
@@ -95,7 +94,7 @@ export const createCellHighlight = (cells, w, h, toLL) => {
     return {
         show(map, col, row) {
             if (current && current.col === col && current.row === row) return
-            current = {col, row}
+            current = { col, row }
             const bounds = cellBounds(col, row)
             if (rectangle) {
                 rectangle.setBounds(bounds)

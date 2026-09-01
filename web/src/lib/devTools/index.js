@@ -1,5 +1,4 @@
-import {copyCoordinatesTool} from '@/lib/devTools/copyCoordinates'
+import { copyCoordinatesTool } from '@/lib/devTools/copyCoordinates'
 
-export const DEV_TOOLS = [
-    copyCoordinatesTool,
-]
+/** Registry of dev tools shown in the sidebar when dev mode is enabled. */
+export const DEV_TOOLS = [copyCoordinatesTool]

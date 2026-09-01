@@ -8,7 +8,9 @@ html {
     box-shadow: none !important;
 }
 
-html, body, #app {
+html,
+body,
+#app {
     height: 100%;
     overflow: hidden;
     user-select: none;
@@ -17,7 +19,9 @@ html, body, #app {
     -webkit-tap-highlight-color: transparent;
 }
 
-input, textarea, [contenteditable="true"] {
+input,
+textarea,
+[contenteditable='true'] {
     user-select: text;
     -webkit-user-select: text;
 }

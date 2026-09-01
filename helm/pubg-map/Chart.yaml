@@ -1,0 +1,19 @@
+apiVersion: v2
+name: pubg-map
+description: Interactive PUBG maps — a static Vue 3 + Leaflet SPA served by unprivileged nginx
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/adzpm/pubg-map
+icon: https://raw.githubusercontent.com/adzpm/pubg-map/main/web/public/favicon.svg
+sources:
+  - https://github.com/adzpm/pubg-map
+keywords:
+  - pubg
+  - maps
+  - leaflet
+  - static-site
+  - nginx
+maintainers:
+  - name: adzpm
+    url: https://github.com/adzpm
