@@ -35,7 +35,7 @@ Leaflet do what it does best. Then layer game data on top.
 
 ## Quick start
 
-Prerequisites: [Node.js](https://nodejs.org) >= 20.19 and [Task](https://taskfile.dev). `libvips` is only needed if you
+Prerequisites: [Node.js](https://nodejs.org) >= 24 and [Task](https://taskfile.dev). `libvips` is only needed if you
 want to regenerate tiles yourself.
 
 ```sh
