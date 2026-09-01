@@ -132,7 +132,7 @@ task docker:down
 After the first tagged release, the published image can be pulled straight from GHCR:
 
 ```sh
-docker run --rm -p 8080:8080 ghcr.io/adzpm/pubg-map:latest
+docker run --rm -p 8080:8080 ghcr.io/adzpm/pubg-map:0.1.0
 ```
 
 ### Helm

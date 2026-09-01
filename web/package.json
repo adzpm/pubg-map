@@ -5,7 +5,7 @@
   "description": "Interactive PUBG battleground maps: tiled imagery, coordinate grid and secret room markers",
   "type": "module",
   "engines": {
-    "node": ">=20.19"
+    "node": ">=24"
   },
   "scripts": {
     "dev": "vite",
