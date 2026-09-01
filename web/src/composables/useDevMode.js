@@ -1,5 +1,5 @@
-import {onMounted, onBeforeUnmount} from 'vue'
-import {usePersistentRef} from '@/composables/usePersistentRef'
+import { onMounted, onBeforeUnmount } from 'vue'
+import { usePersistentRef } from '@/composables/usePersistentRef'
 
 const SEQUENCE = ['KeyD', 'KeyE', 'KeyV']
 const WINDOW_MS = 5000
@@ -11,6 +11,7 @@ const isTypingTarget = (target) => {
     return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
 }
 
+/** Persistent dev-mode flag toggled by typing the D-E-V key sequence outside form fields. */
 export const useDevMode = () => {
     const enabled = usePersistentRef('devMode.enabled', false)
     let buffer = []
@@ -21,7 +22,7 @@ export const useDevMode = () => {
 
         const now = Date.now()
         buffer = buffer.filter((entry) => now - entry.t < WINDOW_MS)
-        buffer.push({code: e.code, t: now})
+        buffer.push({ code: e.code, t: now })
 
         if (buffer.length < SEQUENCE.length) return
         const tail = buffer.slice(-SEQUENCE.length)
@@ -40,5 +41,5 @@ export const useDevMode = () => {
         buffer = []
     }
 
-    return {enabled, disable}
+    return { enabled, disable }
 }

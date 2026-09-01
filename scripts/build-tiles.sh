@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
+#
+# Slices assets/maps/*.png into Google-layout 256px .webp tile pyramids under
+# web/public/assets/tiles/<map-id>/ and writes info.json with source dimensions.
+# Requires libvips (vips, vipsheader). Idempotent: maps whose info.json already
+# exists are skipped; a tile directory without info.json is an interrupted run
+# and is wiped and re-tiled (info.json is written last, so it marks completion).
 
 set -euo pipefail
+
+if ! command -v vips > /dev/null 2>&1; then
+    echo "[ERROR] 'vips' not found. Install libvips (e.g. 'brew install vips' or 'apt install libvips-tools')" >&2
+    exit 1
+fi
 
 cd "$(dirname "$0")/.."
 
@@ -13,9 +24,14 @@ for src in assets/maps/*.png; do
     id=$(echo "$base" | tr '[:upper:]' '[:lower:]')
     out="web/public/assets/tiles/$id"
 
-    if [ -d "$out" ]; then
+    if [ -f "$out/info.json" ]; then
         echo "[WARN] Skip: $id (already tiled, delete $out to regenerate)"
         continue
+    fi
+
+    if [ -d "$out" ]; then
+        echo "[WARN] Incomplete tile dir (no info.json), re-tiling: $out"
+        rm -rf "$out"
     fi
 
     echo "[INFO] Tiling: $id"

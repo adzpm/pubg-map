@@ -1,7 +1,8 @@
-import {ref, watch} from 'vue'
+import { ref, watch } from 'vue'
 
 const PREFIX = 'pubg-map:'
 
+/** A ref persisted to localStorage under 'pubg-map:<key>'; falls back to defaultValue when storage is empty or invalid. */
 export const usePersistentRef = (key, defaultValue) => {
     const storageKey = PREFIX + key
     let initial = defaultValue
@@ -15,12 +16,17 @@ export const usePersistentRef = (key, defaultValue) => {
 
     const state = ref(initial)
 
-    watch(state, (value) => {
-        try {
-            localStorage.setItem(storageKey, JSON.stringify(value))
-        } catch {
-        }
-    }, {deep: true})
+    watch(
+        state,
+        (value) => {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(value))
+            } catch {
+                // storage may be unavailable (private mode) or full; state stays in-memory only
+            }
+        },
+        { deep: true },
+    )
 
     return state
 }

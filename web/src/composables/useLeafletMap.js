@@ -1,8 +1,8 @@
-import {onMounted, onBeforeUnmount, watch, shallowRef} from 'vue'
+import { onMounted, onBeforeUnmount, watch, shallowRef } from 'vue'
 import L from 'leaflet'
-import {computeMaxNativeZoom, fetchTileInfo, tileUrlTemplate, TILE_SIZE} from '@/lib/tiles'
-import {buildGridLayer, createCellHighlight} from '@/lib/grid'
-import {buildSecretRoomsLayer} from '@/lib/secrets'
+import { computeMaxNativeZoom, fetchTileInfo, tileUrlTemplate, TILE_SIZE } from '@/lib/tiles'
+import { buildGridLayer, createCellHighlight } from '@/lib/grid'
+import { buildSecretRoomsLayer } from '@/lib/secrets'
 import '@/lib/smooth-zoom'
 
 const ZOOM_HEADROOM = 8
@@ -19,9 +19,13 @@ const MAP_OPTIONS = {
     smoothZoomSettleMs: 140,
 }
 
-const EMPTY_CURSOR = {visible: false, px: 0, py: 0, cell: ''}
+const EMPTY_CURSOR = { visible: false, px: 0, py: 0, cell: '' }
 
-export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisible}, onCursor, onMapClick) => {
+/**
+ * Mounts a Leaflet map into `container` and keeps it in sync with the given reactive state.
+ * Cursor and click positions are reported in source-image pixels (origin top-left).
+ */
+export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisible }, onCursor, onMapClick) => {
     const map = shallowRef(null)
 
     let baseLayer = null
@@ -31,25 +35,24 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     let dims = null
     let mapBounds = null
 
-    const fitZoomByHeight = () => {
-        if (!map.value || !dims) return 0
-        const containerH = map.value.getSize().y
-        if (containerH <= 0 || dims.h <= 0) return 0
-        return dims.maxZ + Math.log2(containerH / dims.h)
+    // Zoom at which one container axis exactly fits the image axis (0 when sizes are unknown).
+    const fitZoomForAxis = (containerSide, imageSide) => {
+        if (containerSide <= 0 || imageSide <= 0) return 0
+        return dims.maxZ + Math.log2(containerSide / imageSide)
     }
 
-    const fitZoomByWidth = () => {
-        if (!map.value || !dims) return 0
-        const containerW = map.value.getSize().x
-        if (containerW <= 0 || dims.w <= 0) return 0
-        return dims.maxZ + Math.log2(containerW / dims.w)
+    // min: both axes fit (no panning out of bounds); init: the larger axis fills the viewport.
+    const fitZooms = () => {
+        if (!map.value || !dims) return { min: 0, init: 0 }
+        const size = map.value.getSize()
+        const byWidth = fitZoomForAxis(size.x, dims.w)
+        const byHeight = fitZoomForAxis(size.y, dims.h)
+        return { min: Math.min(byWidth, byHeight), init: Math.max(byWidth, byHeight) }
     }
-
-    const fitZoomToBounds = () => Math.min(fitZoomByHeight(), fitZoomByWidth())
 
     const applyMinZoom = () => {
         if (!map.value || !mapBounds) return
-        const minZoom = fitZoomToBounds()
+        const { min: minZoom } = fitZooms()
         map.value.setMinZoom(minZoom)
         if (map.value.getZoom() < minZoom) map.value.setZoom(minZoom)
     }
@@ -65,13 +68,14 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
     const showMap = async (def) => {
         cleanupLayers()
 
-        const {width: w, height: h} = await fetchTileInfo(def.id)
+        const { width: w, height: h } = await fetchTileInfo(def.id)
         const maxNativeZoom = computeMaxNativeZoom(w, h)
         const maxZoom = maxNativeZoom + ZOOM_HEADROOM
+        // toLL: source-image pixels -> LatLng, projected at maxNativeZoom (1 px == 1 CRS unit there)
         const toLL = (px, py) => map.value.unproject([px, py], maxNativeZoom)
         const bounds = L.latLngBounds(toLL(0, h), toLL(w, 0))
 
-        dims = {w, h, maxZ: maxNativeZoom}
+        dims = { w, h, maxZ: maxNativeZoom }
         mapBounds = bounds
 
         baseLayer = L.tileLayer(tileUrlTemplate(def.id), {
@@ -95,15 +99,14 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         map.value.setMaxZoom(maxZoom)
         map.value.setMaxBounds(bounds)
 
-        const minZoom = fitZoomToBounds()
-        const initZoom = Math.max(fitZoomByWidth(), fitZoomByHeight())
+        const { min: minZoom, init: initZoom } = fitZooms()
         map.value.setMinZoom(minZoom)
-        map.value.setView(bounds.getCenter(), initZoom, {animate: false})
+        map.value.setView(bounds.getCenter(), initZoom, { animate: false })
     }
 
     const updateCursor = (e) => {
         if (!dims) return
-        const {w, h, maxZ} = dims
+        const { w, h, maxZ } = dims
         const pt = map.value.project(e.latlng, maxZ)
         const px = Math.round(pt.x)
         const py = Math.round(pt.y)
@@ -144,7 +147,7 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
             const px = Math.round(pt.x)
             const py = Math.round(pt.y)
             if (px < 0 || py < 0 || px > dims.w || py > dims.h) return
-            onMapClick({x: px, y: py})
+            onMapClick({ x: px, y: py })
         })
 
         await showMap(currentMap.value)
@@ -171,5 +174,5 @@ export const useLeafletMap = (container, {currentMap, gridVisible, secretsVisibl
         visible ? secretsLayer.addTo(map.value) : map.value.removeLayer(secretsLayer)
     })
 
-    return {map}
+    return { map }
 }

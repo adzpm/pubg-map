@@ -3,6 +3,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    container_name: pubg-map
     ports:
-      - "127.0.0.1:8083:80"
+      - "127.0.0.1:8083:8080"
     restart: unless-stopped

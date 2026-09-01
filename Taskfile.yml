@@ -41,6 +41,27 @@ tasks:
     cmds:
       - npm run preview
 
+  lint:
+    desc: Run ESLint over web sources
+    deps: [ install ]
+    dir: web
+    cmds:
+      - npm run lint
+
+  format:
+    desc: Format web sources with Prettier
+    deps: [ install ]
+    dir: web
+    cmds:
+      - npm run format
+
+  test:
+    desc: Run unit tests with Vitest
+    deps: [ install ]
+    dir: web
+    cmds:
+      - npm run test
+
   tiles:generate:
     desc: Generate map tiles from assets/maps/*.png into web/public/assets/tiles
     cmds:
@@ -67,9 +88,9 @@ tasks:
         done
 
   clean:
-    desc: Remove build artefacts and node_modules
+    desc: Remove build artefacts, coverage and node_modules
     cmds:
-      - rm -rf web/dist web/node_modules web/.vite
+      - rm -rf web/dist web/node_modules web/.vite web/coverage
 
   docker:build:
     desc: Build Docker image
@@ -80,7 +101,7 @@ tasks:
     desc: Run Docker image on PORT (default 8080)
     deps: [ docker:build ]
     cmds:
-      - docker run --rm -p {{.PORT}}:80 --name {{.IMAGE}} {{.IMAGE}}:{{.TAG}}
+      - docker run --rm -p {{.PORT}}:8080 --name {{.IMAGE}} {{.IMAGE}}:{{.TAG}}
 
   docker:stop:
     desc: Stop running Docker container
@@ -97,6 +118,16 @@ tasks:
     cmds:
       - docker compose -f docker/docker-compose.yml down
 
+  helm:lint:
+    desc: Lint Helm chart
+    cmds:
+      - helm lint helm/pubg-map
+
+  helm:template:
+    desc: Render Helm chart templates
+    cmds:
+      - helm template pubg-map helm/pubg-map
+
   electron:install:
     desc: Install Electron overlay dependencies
     dir: overlay
@@ -105,14 +136,14 @@ tasks:
 
   electron:dev:
     desc: Run Electron overlay locally
-    deps: [ overlay:install ]
+    deps: [ electron:install ]
     dir: overlay
     cmds:
       - npm start
 
   electron:build:
     desc: Build Windows installer (NSIS) and portable .exe into overlay/dist
-    deps: [ overlay:install ]
+    deps: [ electron:install ]
     dir: overlay
     cmds:
       - npm run build

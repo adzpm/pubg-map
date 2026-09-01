@@ -25,3 +25,8 @@ npm-debug.log*
 node_modules/
 dist/
 .vite/
+coverage/
+
+# Helm packaging artifacts
+helm/*.tgz
+helm/**/*.tgz

@@ -1,12 +1,33 @@
+# Git / VCS
 .git
 .gitignore
+
+# IDE - JetBrains
 .idea
+
+# Claude
 .claude
-.DS_Store
+
+# OS
+**/.DS_Store
+
+# Docs
 README.md
-memory
+screenshot.png
+
+# Tooling / CI (not needed in the image)
+Taskfile.yml
+.github
 scripts
 assets/maps
-node_modules
-dist
-*.log
+
+# Non-web apps and deploy manifests
+overlay
+helm
+
+# Node / build output
+**/node_modules
+**/dist
+**/coverage
+**/.vite
+**/*.log

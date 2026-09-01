@@ -1,3 +1,4 @@
+/** Secret room markers per map id; x/y are source-image pixels (use the dev "Copy coordinates" tool to add entries). */
 export const SECRET_ROOMS = {
     erangel: [
         { x: 1379, y: 1815, name: 'Secret room' },
@@ -102,6 +103,5 @@ export const SECRET_ROOMS = {
         { x: 2767, y: 1590, name: 'Secret room' },
         { x: 6295, y: 2473, name: 'Secret room' },
         { x: 5446, y: 1323, name: 'Secret room' },
-        {},
     ],
 }
