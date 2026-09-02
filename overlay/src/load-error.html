@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+    <title>PUBG Map Overlay</title>
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #14161a;
+            color: #e6e6e6;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            text-align: center;
+            user-select: none;
+        }
+
+        h1 {
+            color: #ebb014;
+            font-size: 28px;
+            margin: 0 0 12px;
+        }
+
+        p {
+            margin: 6px 0;
+        }
+
+        .url {
+            color: #ebb014;
+            font-family: Consolas, monospace;
+        }
+
+        .detail {
+            color: #9a9a9a;
+            font-size: 13px;
+        }
+
+        .hint {
+            color: #bdbdbd;
+            font-size: 14px;
+            margin-top: 18px;
+        }
+
+        kbd {
+            background: #2a2d33;
+            border: 1px solid #44484f;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            padding: 1px 6px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Map unavailable</h1>
+        <p>Could not load <span class="url" id="url">the map</span></p>
+        <p class="detail" id="error"></p>
+        <p class="hint">Retrying automatically while the overlay is visible&hellip;</p>
+        <p class="hint">Press <kbd>Esc</kbd> to hide or <kbd>Alt+M</kbd> to toggle the overlay</p>
+    </main>
+    <script>
+        const params = new URLSearchParams(location.search)
+
+        document.getElementById('url').textContent = params.get('url') || 'the map'
+        document.getElementById('error').textContent = params.get('error') || ''
+    </script>
+</body>
+</html>

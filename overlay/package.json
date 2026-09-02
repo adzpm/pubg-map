@@ -2,17 +2,17 @@
   "name": "pubg-map-overlay",
   "version": "0.1.0",
   "description": "Discord-style always-on-top overlay window for pubg.adz.pm",
-  "author": "adzpm <4c1d4u@gmail.com>",
+  "author": "adzpm",
   "main": "src/main.js",
   "private": true,
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win --x64",
-    "dist": "electron-builder --win --x64 --publish never"
+    "build": "electron-builder --win --x64 --publish never"
   },
   "build": {
     "appId": "pm.adz.pubg-map.overlay",
     "productName": "PUBG Map Overlay",
+    "artifactName": "pubg-map-overlay-${version}-${arch}.${ext}",
     "directories": {
       "output": "dist"
     },
@@ -21,6 +21,7 @@
       "package.json"
     ],
     "win": {
+      "icon": "build/icon.png",
       "target": [
         {
           "target": "nsis",
@@ -35,6 +36,9 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
+    },
+    "portable": {
+      "artifactName": "pubg-map-overlay-${version}-${arch}-portable.${ext}"
     }
   },
   "devDependencies": {

@@ -174,13 +174,16 @@ task test       # vitest, jsdom + @vue/test-utils
 Tests live in `web/tests/` mirroring `src/`; `npm run coverage` adds a V8 coverage report and `npm run test:watch`
 keeps Vitest running. CI runs `lint`, `format:check`, `test` and `build` on Node 24, builds the Docker image, and
 lints/templates the Helm chart on every pull request and push to `main`. Tagged `vX.Y.Z` releases push the multi-arch
-image to `ghcr.io/adzpm/pubg-map`, push the chart to `oci://ghcr.io/adzpm/charts` and create a GitHub Release.
+image to `ghcr.io/adzpm/pubg-map`, push the chart to `oci://ghcr.io/adzpm/charts` and create a GitHub Release
+with the Windows x64 overlay binaries attached.
 
 ## In-game overlay
 
 `overlay/` contains a frameless, always-on-top Electron overlay that projects the site over your game,
-Discord-style — toggle it with the global `Alt+M` hotkey. Run it with `task electron:dev`, build the Windows
-installer with `task electron:build`. Details in [`overlay/README.md`](overlay/README.md).
+Discord-style — toggle it with the global `Alt+M` hotkey. A Windows x64 installer and a portable `.exe` are
+attached to each [GitHub Release](https://github.com/adzpm/pubg-map/releases) (run PUBG in borderless
+windowed mode — no overlay can draw over exclusive fullscreen). Run it locally with `task electron:dev`,
+build the binaries with `task electron:build`. Details in [`overlay/README.md`](overlay/README.md).
 
 ## Credits
 

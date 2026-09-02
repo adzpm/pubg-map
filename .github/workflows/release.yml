@@ -84,3 +84,40 @@ jobs:
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           generate_release_notes: true
+
+  overlay:
+    name: Build Windows overlay
+    runs-on: windows-2025
+    needs: [release]
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: overlay
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.20.0
+          cache: npm
+          cache-dependency-path: overlay/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync version from tag
+        run: |
+          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          npm version --no-git-tag-version --allow-same-version $version
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload overlay artifacts to release
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          files: overlay/dist/pubg-map-overlay-*.exe
+          fail_on_unmatched_files: true
