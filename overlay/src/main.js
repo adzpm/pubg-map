@@ -10,6 +10,14 @@ const RETRY_DELAY_MAX_MS = 30000
 const TRAY_ICON_PATH = path.join(__dirname, 'tray-icon.png')
 const ERROR_PAGE_PATH = path.join(__dirname, 'load-error.html')
 
+// electron-builder's portable launcher sets PORTABLE_EXECUTABLE_DIR; keeping
+// userData next to the exe makes the portable build leave no %APPDATA% traces
+// (must run before requestSingleInstanceLock — the lock file lives in userData)
+const portableDir = process.env.PORTABLE_EXECUTABLE_DIR
+if (portableDir) {
+    app.setPath('userData', path.join(portableDir, 'pubg-map-overlay-data'))
+}
+
 let overlayWindow = null
 let overlayReady = false
 let wantVisible = false

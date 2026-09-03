@@ -37,6 +37,10 @@ release ships both:
 - `pubg-map-overlay-<version>-x64.exe` — NSIS installer (lets you pick the install directory)
 - `pubg-map-overlay-<version>-x64-portable.exe` — portable, runs from anywhere, nothing to install
 
+The portable build is fully self-contained: all app data (cache, the site's saved settings) lives in a
+`pubg-map-overlay-data/` folder next to the `.exe`, so it travels with it and leaves no traces in
+`%APPDATA%`. The installer version keeps its data in `%APPDATA%` as usual.
+
 Or build from source, from the repository root:
 
 ```sh
