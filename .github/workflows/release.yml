@@ -80,6 +80,20 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # GitHub's generated notes only list merged PRs, so direct pushes to main
+      # would leave the release body empty — build a commit changelog ourselves.
+      - name: Build commit changelog
+        run: |
+          PREV=$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)
+          RANGE=${PREV:+$PREV..}$GITHUB_REF_NAME
+          printf '## Changelog\n' > "$RUNNER_TEMP/changelog.md"
+          git log --format='* %H %s' "$RANGE" >> "$RUNNER_TEMP/changelog.md"
+
       # Draft first: with immutable releases GitHub forbids adding assets after
       # publishing, so the overlay job uploads into the draft and the publish
       # job flips it live once every asset is attached.
@@ -87,6 +101,7 @@ jobs:
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           draft: true
+          body_path: ${{ runner.temp }}/changelog.md
           generate_release_notes: true
 
   overlay:
