@@ -15,7 +15,7 @@ COPY web/public/favicon.svg web/public/robots.txt ./public/
 
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.31.4-alpine
+FROM nginxinc/nginx-unprivileged:1.31.6-alpine
 
 LABEL org.opencontainers.image.title="pubg-map" \
       org.opencontainers.image.description="Interactive PUBG maps — static Vue 3 + Leaflet SPA served by nginx" \
