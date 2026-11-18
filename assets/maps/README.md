@@ -1,8 +1,8 @@
 # Unprocessed maps
 
-Source: https://github.com/pubg/api-assets/tree/master/Assets/Maps
+The shipped tiles are synced from [pubg.gs](https://pubg.gs/maps/) by `task tiles:fetch` and do not need anything here.
 
-Place here all the high-res maps in PNG format.
+This directory is only for bringing your own high-res PNGs (`task tiles:generate`), named by map id:
 
 - deston.png
 - erangel.png

@@ -15,7 +15,7 @@ const ALPHA = { id: 'alpha', cells: { x: 8, y: 8 } }
 const BETA = { id: 'beta', cells: { x: 4, y: 4 } }
 
 const DIMS = {
-    alpha: { width: 2048, height: 1024 },
+    alpha: { width: 2048, height: 1024, version: 'v1' },
     beta: { width: 1024, height: 1024 },
 }
 
@@ -181,6 +181,22 @@ describe('useLeafletMap', () => {
         // beta cell size is 256x256, so (300, 700) is in column B, row 3
         map.fire('mousemove', { latlng: at(300, 700, 2) })
         expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 300, py: 700, cell: 'B3' })
+    })
+
+    it('requests tiles with the tile-set version from info.json', async () => {
+        const tileUrl = () => {
+            let url
+            leaflet.map.value.eachLayer((layer) => {
+                if (layer instanceof L.TileLayer) url = layer._url
+            })
+            return url
+        }
+        await mountMap()
+        expect(tileUrl()).toBe('/assets/tiles/alpha/{z}/{y}/{x}.webp?v=v1')
+
+        currentMap.value = BETA
+        await flushPromises()
+        expect(tileUrl()).toBe('/assets/tiles/beta/{z}/{y}/{x}.webp')
     })
 
     it('ignores currentMap updates that keep the same id', async () => {

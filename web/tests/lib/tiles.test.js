@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { TILE_SIZE, tileUrlTemplate, tileInfoUrl, computeMaxNativeZoom, fetchTileInfo } from '@/lib/tiles'
 
 describe('TILE_SIZE', () => {
-    it('matches the 256px tiles produced by scripts/build-tiles.sh', () => {
+    it('matches the 256px tiles produced by the tile scripts', () => {
         expect(TILE_SIZE).toBe(256)
     })
 })
@@ -36,6 +36,11 @@ describe('tile URLs', () => {
         expect(tileUrlTemplate('erangel').startsWith(import.meta.env.BASE_URL)).toBe(true)
     })
 
+    it('appends the tile-set version as a cache-busting query', () => {
+        expect(tileUrlTemplate('erangel', '6ab4a113')).toBe('/assets/tiles/erangel/{z}/{y}/{x}.webp?v=6ab4a113')
+        expect(tileUrlTemplate('erangel', 'a b')).toBe('/assets/tiles/erangel/{z}/{y}/{x}.webp?v=a%20b')
+    })
+
     it('points info.json inside the same tile directory', () => {
         expect(tileInfoUrl('taego')).toBe('/assets/tiles/taego/info.json')
         expect(tileInfoUrl('taego').startsWith(import.meta.env.BASE_URL)).toBe(true)
@@ -47,21 +52,21 @@ describe('fetchTileInfo', () => {
         vi.unstubAllGlobals()
     })
 
-    it('resolves with the parsed dimensions using a cache-friendly request', async () => {
+    it('resolves with the parsed info using an always-revalidated request', async () => {
         const fetchMock = vi.fn().mockResolvedValue({
             ok: true,
-            json: () => Promise.resolve({ width: 4096, height: 2048 }),
+            json: () => Promise.resolve({ width: 4096, height: 2048, version: 'abc' }),
         })
         vi.stubGlobal('fetch', fetchMock)
 
-        await expect(fetchTileInfo('erangel')).resolves.toEqual({ width: 4096, height: 2048 })
-        expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/assets/tiles/erangel/info.json', { cache: 'force-cache' })
+        await expect(fetchTileInfo('erangel')).resolves.toEqual({ width: 4096, height: 2048, version: 'abc' })
+        expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/assets/tiles/erangel/info.json', { cache: 'no-cache' })
     })
 
     it('rejects with a hint naming the map when tiles are missing', async () => {
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404 }))
 
         await expect(fetchTileInfo('sanhok')).rejects.toThrow('Tiles for "sanhok" not found')
-        await expect(fetchTileInfo('sanhok')).rejects.toThrow(/build-tiles\.sh/)
+        await expect(fetchTileInfo('sanhok')).rejects.toThrow(/fetch-tiles\.sh/)
     })
 })

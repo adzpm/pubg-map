@@ -21,9 +21,10 @@ Leaflet do what it does best. Then layer game data on top.
 ## Features
 
 - **All 9 Battlegrounds maps** — Erangel, Miramar, Vikendi, Taego, Deston, Rondo, Sanhok, Paramo, Karakin.
-- **Deep-zoom tile pipeline** — source PNGs are sliced with `libvips` into Google-layout 256px WebP pyramids (Q=92), so
-  panning and zooming stays sharp from the world view down to the pixel. The ~12k generated tiles are committed, so
-  cloning the repo is all you need.
+- **Deep-zoom tiles, kept current** — 256px WebP pyramids (8192px per map) synced from [pubg.gs](https://pubg.gs/maps/),
+  which extracts the imagery from the live game build, so panning and zooming stays sharp from the world view down to
+  the pixel. The ~12k tiles are committed, so cloning the repo is all you need; each tile set carries a version that
+  busts browser and PWA caches when the maps are refreshed.
 - **Live grid + cell highlight** — main grid (A–H × 1–8 on the big maps, scaled down to 2×2 on Karakin) plus 10×
   sub-divisions; the hovered cell is highlighted in real time and each cell maps to 1 km in-game.
 - **Secret-rooms layer** — community POI data for Erangel, Taego, Deston, Rondo, Paramo and Vikendi.
@@ -35,8 +36,8 @@ Leaflet do what it does best. Then layer game data on top.
 
 ## Quick start
 
-Prerequisites: [Node.js](https://nodejs.org) >= 24 and [Task](https://taskfile.dev). `libvips` is only needed if you
-want to regenerate tiles yourself.
+Prerequisites: [Node.js](https://nodejs.org) >= 24 and [Task](https://taskfile.dev). `curl` is needed to refresh the
+tiles, `libvips` only to tile your own PNGs.
 
 ```sh
 git clone https://github.com/adzpm/pubg-map.git
@@ -59,8 +60,10 @@ npm run dev
 ```mermaid
 flowchart LR
   subgraph Tiles
+    GS[pubg.gs tile CDN] --> FT[scripts/fetch-tiles.sh<br>curl]
+    FT --> PYR[WebP pyramid + info.json<br>web/public/assets/tiles/]
     PNG[assets/maps/*.png] --> BT[scripts/build-tiles.sh<br>vips dzsave]
-    BT --> PYR[WebP pyramid + info.json<br>web/public/assets/tiles/]
+    BT --> PYR
   end
   subgraph App
     PYR --> VITE[Vite + Vue 3 SPA]
@@ -73,6 +76,7 @@ flowchart LR
 
 ```
 ├── assets/maps/           source PNGs (not committed; see "Bringing your own maps")
+├── scripts/fetch-tiles.sh sync tile pyramids from pubg.gs, skips up-to-date maps
 ├── scripts/build-tiles.sh PNG -> WebP pyramid via libvips, idempotent
 ├── web/                   Vue 3 + Leaflet SPA (Vite, PWA)
 │   ├── public/assets/tiles/  generated tile pyramids, committed
@@ -86,6 +90,20 @@ flowchart LR
 ├── helm/pubg-map/         Helm chart
 └── Taskfile.yml           all entry points: task --list
 ```
+
+## Updating the maps
+
+```sh
+task tiles:fetch                       # every map whose remote version changed
+task tiles:fetch -- rondo taego        # only these maps
+task tiles:fetch -- --force erangel    # re-download even if up to date
+```
+
+`scripts/fetch-tiles.sh` reads each map's tile manifest from `https://pubg.gs/maps/<id>/` (CDN URL, zoom levels, size
+and a content hash), downloads the full z0–5 pyramid, remaps it from the remote `{z}/{x}/{y}` to our `{z}/{y}/{x}`
+layout, checks that every tile is present and is a WebP, and only then swaps the directory in. The hash is written to
+`info.json` as `version`; the app appends it to tile URLs (`?v=<hash>`), so the year-long immutable cache on tiles never
+serves an outdated map. After an update, re-check secret-room coordinates on reworked areas.
 
 ## Bringing your own maps
 
@@ -187,10 +205,11 @@ build the binaries with `task electron:build`. Details in [`overlay/README.md`](
 
 ## Credits
 
-Map imagery comes from the official [pubg/api-assets](https://github.com/pubg/api-assets) repository.
+Map imagery is extracted from the game by [pubg.gs](https://pubg.gs/maps/).
+Earlier tile sets came from the official [pubg/api-assets](https://github.com/pubg/api-assets) repository, which has
+not been updated since patch 31.2 (October 2024).
 
 ## License
 
 The code is released under the [MIT License](LICENSE). Map imagery and other PUBG: Battlegrounds assets are the
-property of KRAFTON, Inc., distributed via [pubg/api-assets](https://github.com/pubg/api-assets) under its own
-terms — the MIT license does not cover them.
+property of KRAFTON, Inc. — the MIT license does not cover them.

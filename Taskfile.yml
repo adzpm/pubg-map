@@ -62,6 +62,11 @@ tasks:
     cmds:
       - npm run test
 
+  tiles:fetch:
+    desc: Download up-to-date map tiles from pubg.gs (task tiles:fetch -- [--force] [map-id ...])
+    cmds:
+      - ./scripts/fetch-tiles.sh {{.CLI_ARGS}}
+
   tiles:generate:
     desc: Generate map tiles from assets/maps/*.png into web/public/assets/tiles
     cmds:

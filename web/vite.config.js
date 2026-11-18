@@ -31,7 +31,7 @@ export default defineConfig({
                 globPatterns: ['**/*.{js,css,html,svg,woff2}'],
                 runtimeCaching: [
                     {
-                        urlPattern: /\/assets\/tiles\/.+\.webp$/,
+                        urlPattern: /\/assets\/tiles\/.+\.webp(?:\?.*)?$/,
                         handler: 'CacheFirst',
                         options: {
                             cacheName: 'pubg-tiles',

@@ -68,7 +68,7 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
     const showMap = async (def) => {
         cleanupLayers()
 
-        const { width: w, height: h } = await fetchTileInfo(def.id)
+        const { width: w, height: h, version } = await fetchTileInfo(def.id)
         const maxNativeZoom = computeMaxNativeZoom(w, h)
         const maxZoom = maxNativeZoom + ZOOM_HEADROOM
         // toLL: source-image pixels -> LatLng, projected at maxNativeZoom (1 px == 1 CRS unit there)
@@ -78,7 +78,7 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         dims = { w, h, maxZ: maxNativeZoom }
         mapBounds = bounds
 
-        baseLayer = L.tileLayer(tileUrlTemplate(def.id), {
+        baseLayer = L.tileLayer(tileUrlTemplate(def.id, version), {
             tileSize: TILE_SIZE,
             minNativeZoom: 0,
             maxNativeZoom,
