@@ -3,6 +3,7 @@ import L from 'leaflet'
 import { computeMaxNativeZoom, fetchTileInfo, tileUrlTemplate, TILE_SIZE } from '@/lib/tiles'
 import { buildGridLayer, cellName, createCellHighlight, gridAxes } from '@/lib/grid'
 import { buildSecretRoomsLayer } from '@/lib/secrets'
+import { buildVehiclesLayer } from '@/lib/vehicles'
 import '@/lib/smooth-zoom'
 
 const ZOOM_HEADROOM = 8
@@ -26,7 +27,12 @@ const NO_AXES = { cols: [], rows: [] }
  * Mounts a Leaflet map into `container` and keeps it in sync with the given reactive state.
  * Cursor and click positions are reported in source-image pixels (origin top-left).
  */
-export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisible }, onCursor, onMapClick) => {
+export const useLeafletMap = (
+    container,
+    { currentMap, gridVisible, secretsVisible, vehiclesVisible },
+    onCursor,
+    onMapClick,
+) => {
     const map = shallowRef(null)
     // screen extents of grid columns/rows, for labels pinned to the screen edges
     const axes = shallowRef(NO_AXES)
@@ -34,6 +40,7 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
     let baseLayer = null
     let gridLayer = null
     let secretsLayer = null
+    let vehiclesLayer = null
     let highlight = null
     let dims = null
     let mapBounds = null
@@ -86,10 +93,10 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
 
     const cleanupLayers = () => {
         if (highlight) highlight.hide(map.value)
-        for (const layer of [baseLayer, gridLayer, secretsLayer]) {
+        for (const layer of [baseLayer, gridLayer, secretsLayer, vehiclesLayer]) {
             if (layer) map.value.removeLayer(layer)
         }
-        baseLayer = gridLayer = secretsLayer = highlight = null
+        baseLayer = gridLayer = secretsLayer = vehiclesLayer = highlight = null
     }
 
     const showMap = async (def) => {
@@ -121,6 +128,9 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         secretsLayer = buildSecretRoomsLayer(def.id, toLL)
         if (secretsVisible.value) secretsLayer.addTo(map.value)
 
+        // hundreds of markers: built only once the layer is first shown
+        if (vehiclesVisible?.value) showVehicles(def.id, toLL)
+
         highlight = createCellHighlight(def.cells, w, h, toLL)
 
         map.value.setMaxZoom(maxZoom)
@@ -130,6 +140,21 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         map.value.setMinZoom(minZoom)
         map.value.setView(bounds.getCenter(), initZoom, { animate: false })
         updateAxes()
+        updateDensity()
+    }
+
+    const showVehicles = (mapId, toLL) => {
+        vehiclesLayer ??= buildVehiclesLayer(mapId, toLL)
+        vehiclesLayer.addTo(map.value)
+    }
+
+    // Chips with a number are unreadable when the whole map is on screen: below this many screen
+    // pixels per kilometre they shrink to plain dots (CSS, .vehicles-compact).
+    const COMPACT_BELOW_PX_PER_KM = 170
+    const updateDensity = () => {
+        if (!map.value || !dims) return
+        const cellPx = (dims.w / dims.cells.x) * map.value.getZoomScale(map.value.getZoom(), dims.maxZ)
+        container.value?.classList.toggle('vehicles-compact', cellPx < COMPACT_BELOW_PX_PER_KM)
     }
 
     const updateCursor = (e) => {
@@ -176,6 +201,7 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         map.value.on('zoomend smoothzoomend', () => {
             liveZoom = null
             updateAxes()
+            updateDensity()
         })
         map.value.on('click', (e) => {
             if (!dims || !onMapClick) return
@@ -209,6 +235,14 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         if (!secretsLayer || !map.value) return
         visible ? secretsLayer.addTo(map.value) : map.value.removeLayer(secretsLayer)
     })
+
+    if (vehiclesVisible) {
+        watch(vehiclesVisible, (visible) => {
+            if (!map.value || !dims) return
+            if (visible) showVehicles(currentMap.value.id, (px, py) => map.value.unproject([px, py], dims.maxZ))
+            else if (vehiclesLayer) map.value.removeLayer(vehiclesLayer)
+        })
+    }
 
     return { map, axes }
 }

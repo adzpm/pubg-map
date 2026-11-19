@@ -103,6 +103,20 @@ describe('App', () => {
         expect(win().props('secretsVisible')).toBe(false)
     })
 
+    it('V toggles vehicle spawns, off by default and only where the map has them', async () => {
+        wrapper = mount(App)
+        const win = () => wrapper.findComponent(AppWindow)
+        expect(win().props('vehiclesVisible')).toBe(false)
+
+        await press('KeyV')
+        expect(win().props('vehiclesVisible')).toBe(true)
+
+        await mapButton(wrapper, 'Karakin').trigger('click')
+        expect(win().props('vehiclesCount')).toBe(0)
+        await press('KeyV')
+        expect(win().props('vehiclesVisible')).toBe(true)
+    })
+
     it('F folds and unfolds the window', async () => {
         wrapper = mount(App, { attachTo: document.body })
 

@@ -9,6 +9,7 @@ const props = defineProps({
   currentMap: { type: Object, required: true },
   cursor: { type: Object, required: true },
   secretsCount: { type: Number, default: 0 },
+  vehiclesCount: { type: Number, default: 0 },
   devMode: { type: Boolean, default: false },
   devTools: { type: Array, default: () => [] },
 })
@@ -17,6 +18,7 @@ defineEmits(['select'])
 
 const gridVisible = defineModel('gridVisible', { type: Boolean, required: true })
 const secretsVisible = defineModel('secretsVisible', { type: Boolean, required: true })
+const vehiclesVisible = defineModel('vehiclesVisible', { type: Boolean, default: false })
 const statusBarVisible = defineModel('statusBarVisible', { type: Boolean, required: true })
 
 const windowEl = ref(null)
@@ -102,7 +104,37 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
           <span class="box"></span>{{ secretsCount > 0 ? `Secret rooms ${secretsCount}` : 'No secret rooms' }}
           <AppKey class="end" keys="R" />
         </button>
+        <button
+          type="button"
+          class="wide"
+          :aria-pressed="vehiclesCount > 0 && vehiclesVisible"
+          :disabled="vehiclesCount === 0"
+          aria-keyshortcuts="V"
+          @click="vehiclesVisible = !vehiclesVisible"
+        >
+          <span class="box"></span>{{ vehiclesCount > 0 ? `Vehicle spawns ${vehiclesCount}` : 'No vehicle spawns' }}
+          <AppKey class="end" keys="V" />
+        </button>
       </div>
+
+      <dl v-if="vehiclesCount > 0 && vehiclesVisible" class="legend">
+        <div>
+          <dt class="vehicle-spot land guaranteed">100</dt>
+          <dd>every match</dd>
+        </div>
+        <div>
+          <dt class="vehicle-spot land">34</dt>
+          <dd>chance, %</dd>
+        </div>
+        <div>
+          <dt class="vehicle-spot water">27</dt>
+          <dd>boat</dd>
+        </div>
+        <div>
+          <dt class="vehicle-spot air">20</dt>
+          <dd>glider</dd>
+        </div>
+      </dl>
 
       <div v-if="devMode" class="toggles dev" aria-label="Dev tools">
         <button type="button" :aria-pressed="statusBarVisible" @click="statusBarVisible = !statusBarVisible">
@@ -323,6 +355,32 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 
 .toggles button:hover {
   background: var(--case-2);
+}
+
+.toggles button.wide {
+  grid-column: 1 / -1;
+  border-left: 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0;
+  padding: 10px 12px;
+  border-top: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--sand-dim);
+}
+
+.legend div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend dd {
+  margin: 0;
 }
 
 .toggles .end {

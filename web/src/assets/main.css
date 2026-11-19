@@ -92,6 +92,46 @@ button {
     box-shadow: 0 0 0 1px rgb(255 116 56 / 50%);
 }
 
+/* vehicle spawn spot: a chip with the spawn chance in percent; filled = spawns every match.
+   Border colour is the kind: land (sand), water, air. Also used by the legend in the window. */
+.vehicle-spot {
+    --kind: var(--sand);
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    background: rgb(20 22 16 / 88%);
+    color: var(--kind);
+    border: 1.5px solid var(--kind);
+    border-radius: 50%;
+    font: 700 12px/1 var(--font-condensed);
+    font-variant-numeric: tabular-nums;
+}
+
+.vehicle-spot.water {
+    --kind: #5fd0d6;
+}
+
+.vehicle-spot.air {
+    --kind: #c4b2ff;
+}
+
+.vehicle-spot.guaranteed {
+    background: var(--kind);
+    color: #14160f;
+    font-size: 11px;
+    box-shadow: 0 0 0 1.5px #14160f;
+}
+
+/* whole map on screen: numbers would overlap, so spots shrink to dots (guaranteed ones stay solid) */
+.vehicles-compact .vehicle-spot {
+    width: 8px;
+    height: 8px;
+    margin: 8px;
+    font-size: 0;
+    border-width: 1.5px;
+}
+
 .leaflet-tooltip {
     padding: 4px 8px;
     background: var(--case);

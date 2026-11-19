@@ -6,6 +6,7 @@ const props = defineProps({
   currentMap: { type: Object, required: true },
   gridVisible: { type: Boolean, default: true },
   secretsVisible: { type: Boolean, default: true },
+  vehiclesVisible: { type: Boolean, default: false },
   devMode: { type: Boolean, default: false },
   cursor: { type: Object, default: () => ({ col: -1, row: -1 }) },
 })

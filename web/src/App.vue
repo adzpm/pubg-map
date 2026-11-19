@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { MAPS } from '@/data/maps'
 import { SECRET_ROOMS } from '@/data/secrets'
+import { vehicleSpotCount } from '@/lib/vehicles'
 import { usePersistentRef } from '@/composables/usePersistentRef'
 import { useDevMode } from '@/composables/useDevMode'
 import { useDevTools } from '@/composables/useDevTools'
@@ -22,10 +23,12 @@ const currentMap = computed({
 
 const gridVisible = usePersistentRef('gridVisible', true)
 const secretsVisible = usePersistentRef('secretsVisible', true)
+const vehiclesVisible = usePersistentRef('vehiclesVisible', false)
 const statusBarVisible = usePersistentRef('statusBarVisible', true)
 const cursor = ref({ visible: false, px: 0, py: 0, cell: '', col: -1, row: -1 })
 
 const secretsCount = computed(() => (SECRET_ROOMS[currentMap.value.id] ?? []).length)
+const vehiclesCount = computed(() => vehicleSpotCount(currentMap.value.id))
 
 const windowRef = ref(null)
 
@@ -47,6 +50,9 @@ useHotkeys({
   toggleSecrets: () => {
     if (secretsCount.value > 0) secretsVisible.value = !secretsVisible.value
   },
+  toggleVehicles: () => {
+    if (vehiclesCount.value > 0) vehiclesVisible.value = !vehiclesVisible.value
+  },
   toggleWindow: () => windowRef.value?.toggle(),
 })
 
@@ -62,6 +68,7 @@ const onMapClick = (point) => {
       :current-map="currentMap"
       :grid-visible="gridVisible"
       :secrets-visible="secretsVisible"
+      :vehicles-visible="vehiclesVisible"
       :dev-mode="devMode"
       :cursor="cursor"
       @cursor="cursor = $event"
@@ -71,11 +78,13 @@ const onMapClick = (point) => {
       ref="windowRef"
       v-model:grid-visible="gridVisible"
       v-model:secrets-visible="secretsVisible"
+      v-model:vehicles-visible="vehiclesVisible"
       v-model:status-bar-visible="statusBarVisible"
       :maps="MAPS"
       :current-map="currentMap"
       :cursor="cursor"
       :secrets-count="secretsCount"
+      :vehicles-count="vehiclesCount"
       :dev-mode="devMode"
       :dev-tools="devTools"
       @select="selectMap"

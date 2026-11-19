@@ -20,6 +20,7 @@ const mountWindow = (props = {}) =>
             secretsVisible: true,
             statusBarVisible: true,
             secretsCount: 3,
+            vehiclesCount: 0,
             ...props,
         },
     })
@@ -95,6 +96,28 @@ describe('AppWindow', () => {
         expect(toggle.attributes('aria-pressed')).toBe('false')
         await toggle.trigger('click')
         expect(wrapper.emitted('update:secretsVisible')).toBeUndefined()
+    })
+
+    it('offers the vehicle spawns toggle with its count, and a legend while it is on', async () => {
+        const wrapper = mountWindow({ vehiclesCount: 694, vehiclesVisible: false })
+        const toggle = buttonByText(wrapper, 'Vehicle spawns')
+
+        expect(toggle.text()).toContain('Vehicle spawns 694')
+        expect(toggle.find('kbd').text()).toBe('V')
+        expect(wrapper.find('.legend').exists()).toBe(false)
+
+        await toggle.trigger('click')
+        expect(wrapper.emitted('update:vehiclesVisible')).toEqual([[true]])
+
+        await wrapper.setProps({ vehiclesVisible: true })
+        expect(wrapper.find('.legend').text()).toContain('every match')
+    })
+
+    it('disables the vehicle spawns toggle on maps without vehicles', () => {
+        const toggle = buttonByText(mountWindow({ vehiclesVisible: true }), 'No vehicle spawns')
+
+        expect(toggle.attributes('disabled')).toBeDefined()
+        expect(toggle.attributes('aria-pressed')).toBe('false')
     })
 
     it('shows dev tools only in dev mode and toggles them', async () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { MAPS } from '@/data/maps'
 import { SECRET_ROOMS } from '@/data/secrets'
+import { VEHICLES } from '@/data/vehicles'
 
 describe('MAPS data', () => {
     it('has at least one map', () => {
@@ -60,5 +61,37 @@ describe('SECRET_ROOMS data', () => {
         }
 
         expect(bad).toEqual([])
+    })
+})
+
+describe('VEHICLES data', () => {
+    it('only references known map ids', () => {
+        const knownIds = new Set(MAPS.map((m) => m.id))
+        expect(Object.keys(VEHICLES).filter((id) => !knownIds.has(id))).toEqual([])
+    })
+
+    it('keeps every spot inside the image and pointing at an existing group', () => {
+        const bad = []
+        for (const [mapId, { groups, spots }] of Object.entries(VEHICLES)) {
+            spots.forEach(([x, y, g], index) => {
+                const inside = x >= 0 && x <= 8192 && y >= 0 && y <= 8192
+                if (!inside || !groups[g]) bad.push(`${mapId}[${index}]: ${x},${y},${g}`)
+            })
+        }
+        expect(bad).toEqual([])
+    })
+
+    it('has as many spots per group as the group says, and a chance that follows from count / spots', () => {
+        for (const [mapId, { groups, spots }] of Object.entries(VEHICLES)) {
+            groups.forEach((group, g) => {
+                const label = `${mapId} ${group.name}`
+                expect(spots.filter((s) => s[2] === g).length, label).toBe(group.spots)
+
+                const [min, max] = Array.isArray(group.count) ? group.count : [group.count, group.count]
+                const expected = Math.min(100, (100 * (min + max)) / 2 / group.spots)
+                expect(Math.abs(group.chance - expected), label).toBeLessThan(0.06)
+                expect(['land', 'water', 'air'], label).toContain(group.kind)
+            })
+        }
     })
 })

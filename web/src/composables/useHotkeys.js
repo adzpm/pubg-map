@@ -2,10 +2,11 @@ import { onBeforeUnmount, onMounted } from 'vue'
 import { hasModifier, isTypingTarget } from '@/lib/keyboard'
 
 /**
- * Global shortcuts: 1–9 pick the n-th map, G toggles the grid, R toggles secret rooms, F folds the window.
+ * Global shortcuts: 1–9 pick the n-th map, G toggles the grid, R toggles secret rooms, V toggles
+ * vehicle spawns, F folds the window.
  * Uses e.code, so they work on any keyboard layout; ignored while typing or with modifiers held.
  */
-export const useHotkeys = ({ maps, select, toggleGrid, toggleSecrets, toggleWindow }) => {
+export const useHotkeys = ({ maps, select, toggleGrid, toggleSecrets, toggleVehicles, toggleWindow }) => {
     const onKeyDown = (e) => {
         if (hasModifier(e) || isTypingTarget(e.target)) return
 
@@ -18,6 +19,8 @@ export const useHotkeys = ({ maps, select, toggleGrid, toggleSecrets, toggleWind
             toggleGrid()
         } else if (e.code === 'KeyR') {
             toggleSecrets()
+        } else if (e.code === 'KeyV' && toggleVehicles) {
+            toggleVehicles()
         } else if (e.code === 'KeyF' && toggleWindow) {
             toggleWindow()
         } else {
