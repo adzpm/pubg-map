@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import AppWindow from '@/components/AppWindow.vue'
@@ -29,6 +29,10 @@ const buttonByText = (wrapper, text) => wrapper.findAll('button').find((b) => b.
 describe('AppWindow', () => {
     beforeEach(() => {
         localStorage.clear()
+    })
+
+    afterEach(() => {
+        vi.unstubAllGlobals()
     })
 
     it('shows the current map with its size in the header', () => {
@@ -78,7 +82,7 @@ describe('AppWindow', () => {
         const wrapper = mountWindow({ secretsVisible: false })
         const toggle = buttonByText(wrapper, 'Secret rooms')
 
-        expect(toggle.text()).toBe('Secret rooms 3')
+        expect(toggle.text()).toContain('Secret rooms 3')
         await toggle.trigger('click')
         expect(wrapper.emitted('update:secretsVisible')).toEqual([[true]])
     })
@@ -105,6 +109,35 @@ describe('AppWindow', () => {
 
         await buttonByText(wrapper, 'Status bar').trigger('click')
         expect(wrapper.emitted('update:statusBarVisible')).toEqual([[false]])
+    })
+
+    it('shows a keycap for every shortcut: map digits, G, R and F', () => {
+        const wrapper = mountWindow()
+        const caps = (el) => el.findAll('kbd').map((k) => k.text())
+
+        expect(caps(wrapper.find('.maps'))).toEqual(['1', '2'])
+        expect(caps(buttonByText(wrapper, 'Grid'))).toEqual(['G'])
+        expect(caps(buttonByText(wrapper, 'Secret rooms'))).toEqual(['R'])
+        expect(wrapper.find('.hints').text()).toBe('FFold window')
+        expect(wrapper.find('.fold').attributes('aria-keyshortcuts')).toBe('F')
+    })
+
+    it('adds the overlay shortcuts when running inside the Electron overlay', () => {
+        vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 pubg-map-overlay/0.1.4 Electron/45.4.1' })
+        const hints = mountWindow().find('.hints')
+
+        expect(hints.findAll('kbd').map((k) => k.text())).toEqual(['F', 'Alt', 'M', 'Esc'])
+        expect(hints.text()).toContain('Show or hide overlay')
+    })
+
+    it('exposes toggle so the F hotkey can fold it', async () => {
+        const wrapper = mountWindow()
+
+        wrapper.vm.toggle()
+        await nextTick()
+        await nextTick()
+
+        expect(wrapper.find('.body').exists()).toBe(false)
     })
 
     it('folds to the header and remembers it', async () => {

@@ -27,6 +27,8 @@ const cursor = ref({ visible: false, px: 0, py: 0, cell: '', col: -1, row: -1 })
 
 const secretsCount = computed(() => (SECRET_ROOMS[currentMap.value.id] ?? []).length)
 
+const windowRef = ref(null)
+
 const { enabled: devMode } = useDevMode()
 
 const { tools: devTools, dispatch: dispatchDevTool } = useDevTools()
@@ -45,6 +47,7 @@ useHotkeys({
   toggleSecrets: () => {
     if (secretsCount.value > 0) secretsVisible.value = !secretsVisible.value
   },
+  toggleWindow: () => windowRef.value?.toggle(),
 })
 
 const onMapClick = (point) => {
@@ -65,6 +68,7 @@ const onMapClick = (point) => {
       @map-click="onMapClick"
     />
     <AppWindow
+      ref="windowRef"
       v-model:grid-visible="gridVisible"
       v-model:secrets-visible="secretsVisible"
       v-model:status-bar-visible="statusBarVisible"

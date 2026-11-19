@@ -29,9 +29,11 @@ Leaflet do what it does best. Then layer game data on top.
   sub-divisions, each cell 1 km in-game. Column letters and row numbers stay pinned to the screen edges at any zoom, and
   the square under the cursor lights up there and in the map window.
 - **Floating map window** — map picker, layers and the current square in one window you can drag anywhere (it sticks
-  to screen edges) and fold into a single bar; it remembers where you left it. Keys: `1`–`9` pick a map, `G` toggles
-  the grid, `R` the secret rooms.
-- **Secret-rooms layer** — community POI data for Erangel, Taego, Deston, Rondo, Paramo and Vikendi.
+  to screen edges) and fold into a single bar; it remembers where you left it. Every shortcut is shown as a keycap next to
+  its control: `1`–`9` pick a map, `G` toggles the grid, `R` the secret rooms, `F` folds the window; inside the overlay
+  the window also lists `Alt+M` and `Esc`.
+- **Secret-rooms layer** — 117 rooms on Erangel, Miramar, Taego, Deston, Rondo, Paramo and Vikendi, checked against the
+  game's own loot data where it exposes them and against the map imagery elsewhere.
 - **PWA offline caching** — `vite-plugin-pwa` precaches the app shell and caches map tiles at runtime, so the maps you
   have opened keep working without a connection.
 - **Smooth zoom** — a custom Leaflet handler replaces the stepped scroll-wheel zoom with a fluent, fractional one.

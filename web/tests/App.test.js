@@ -102,4 +102,16 @@ describe('App', () => {
         await press('KeyR')
         expect(win().props('secretsVisible')).toBe(false)
     })
+
+    it('F folds and unfolds the window', async () => {
+        wrapper = mount(App, { attachTo: document.body })
+
+        await press('KeyF')
+        await nextTick()
+        expect(wrapper.find('.field-window .body').exists()).toBe(false)
+
+        await press('KeyF')
+        await nextTick()
+        expect(wrapper.find('.field-window .body').exists()).toBe(true)
+    })
 })

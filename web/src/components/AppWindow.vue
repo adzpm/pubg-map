@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useFloatingWindow } from '@/composables/useFloatingWindow'
+import { isOverlay } from '@/lib/overlay'
+import AppKey from '@/components/AppKey.vue'
 
 const props = defineProps({
   maps: { type: Array, required: true },
@@ -19,6 +21,11 @@ const statusBarVisible = defineModel('statusBarVisible', { type: Boolean, requir
 
 const windowEl = ref(null)
 const { style, collapsed, dragging, toggle, handle } = useFloatingWindow(windowEl)
+
+// F folds the window from anywhere; the hotkey lives in App next to the others
+defineExpose({ toggle })
+
+const overlay = isOverlay()
 
 const km = (map) => `${map.cells.x}×${map.cells.y} km`
 const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
@@ -44,7 +51,13 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
         {{ currentMap.name }}<small>{{ km(currentMap) }}</small>
       </span>
       <span class="cell" :class="{ idle: !cell }" aria-live="polite">{{ cell || '—' }}</span>
-      <button type="button" class="fold" :aria-label="collapsed ? 'Unfold window' : 'Fold window'" @click="toggle">
+      <button
+        type="button"
+        class="fold"
+        :aria-label="collapsed ? 'Unfold window' : 'Fold window'"
+        aria-keyshortcuts="F"
+        @click="toggle"
+      >
         <svg
           width="12"
           height="8"
@@ -69,7 +82,7 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
           :aria-keyshortcuts="i < 9 ? String(i + 1) : undefined"
           @click="$emit('select', map)"
         >
-          <span v-if="i < 9" class="key" aria-hidden="true">{{ i + 1 }}</span>
+          <AppKey v-if="i < 9" class="key" :keys="String(i + 1)" />
           <span class="name">{{ map.name }}</span>
           <span class="km">{{ km(map) }}</span>
         </button>
@@ -77,7 +90,7 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 
       <div class="toggles">
         <button type="button" :aria-pressed="gridVisible" aria-keyshortcuts="G" @click="gridVisible = !gridVisible">
-          <span class="box"></span>Grid
+          <span class="box"></span>Grid<AppKey class="end" keys="G" />
         </button>
         <button
           type="button"
@@ -87,6 +100,7 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
           @click="secretsVisible = !secretsVisible"
         >
           <span class="box"></span>{{ secretsCount > 0 ? `Secret rooms ${secretsCount}` : 'No secret rooms' }}
+          <AppKey class="end" keys="R" />
         </button>
       </div>
 
@@ -105,6 +119,14 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
           <span class="box"></span>{{ entry.tool.name }}
         </button>
       </div>
+
+      <ul class="hints" aria-label="Keyboard shortcuts">
+        <li><AppKey keys="F" />Fold window</li>
+        <template v-if="overlay">
+          <li><AppKey keys="Alt+M" />Show or hide overlay</li>
+          <li><AppKey keys="Esc" />Hide overlay</li>
+        </template>
+      </ul>
     </div>
   </section>
 </template>
@@ -115,7 +137,7 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
   top: 0;
   left: 0;
   z-index: 1000;
-  width: 300px;
+  width: 340px;
   max-width: calc(100vw - 24px);
   background: var(--case);
   color: var(--sand);
@@ -267,11 +289,7 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 .maps .key {
   position: absolute;
   top: 7px;
-  right: 8px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--sand-dim);
-  opacity: 0.6;
+  right: 7px;
 }
 
 .toggles {
@@ -286,12 +304,13 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 .toggles button {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 12px;
+  gap: 8px;
+  padding: 12px 10px;
   font-size: 13px;
   font-weight: 600;
   color: var(--sand-dim);
   text-align: left;
+  white-space: nowrap;
 }
 
 .toggles button:nth-child(even) {
@@ -304,6 +323,28 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 
 .toggles button:hover {
   background: var(--case-2);
+}
+
+.toggles .end {
+  margin-left: auto;
+}
+
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 10px 12px;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--sand-dim);
+}
+
+.hints li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .toggles .box {

@@ -17,7 +17,7 @@ describe('useHotkeys', () => {
     }
 
     beforeEach(() => {
-        handlers = { select: vi.fn(), toggleGrid: vi.fn(), toggleSecrets: vi.fn() }
+        handlers = { select: vi.fn(), toggleGrid: vi.fn(), toggleSecrets: vi.fn(), toggleWindow: vi.fn() }
         wrapper = mount(
             defineComponent({
                 setup() {
@@ -47,6 +47,11 @@ describe('useHotkeys', () => {
         press('KeyR')
         expect(handlers.toggleGrid).toHaveBeenCalledTimes(1)
         expect(handlers.toggleSecrets).toHaveBeenCalledTimes(1)
+    })
+
+    it('folds the window with F', () => {
+        expect(press('KeyF').defaultPrevented).toBe(true)
+        expect(handlers.toggleWindow).toHaveBeenCalledTimes(1)
     })
 
     it('leaves other keys and modified shortcuts to the browser', () => {
