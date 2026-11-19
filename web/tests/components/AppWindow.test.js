@@ -110,7 +110,11 @@ describe('AppWindow', () => {
         expect(wrapper.emitted('update:vehiclesVisible')).toEqual([[true]])
 
         await wrapper.setProps({ vehiclesVisible: true })
-        expect(wrapper.find('.legend').text()).toContain('every match')
+        expect(wrapper.find('.legend').text()).toContain('fixed spawn')
+        expect(wrapper.find('.legend-note').text()).not.toContain('Not on the map')
+
+        await wrapper.setProps({ vehiclesUnplaced: ['Garage (8 per match)'] })
+        expect(wrapper.find('.legend-note').text()).toContain('give no points for them: Garage (8 per match).')
     })
 
     it('disables the vehicle spawns toggle on maps without vehicles', () => {

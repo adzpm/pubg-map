@@ -10,6 +10,8 @@ const props = defineProps({
   cursor: { type: Object, required: true },
   secretsCount: { type: Number, default: 0 },
   vehiclesCount: { type: Number, default: 0 },
+  /** Spawn-table rows with no points in the data, e.g. "Garage (8 per match)". */
+  vehiclesUnplaced: { type: Array, default: () => [] },
   devMode: { type: Boolean, default: false },
   devTools: { type: Array, default: () => [] },
 })
@@ -120,11 +122,11 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
       <dl v-if="vehiclesCount > 0 && vehiclesVisible" class="legend">
         <div>
           <dt class="vehicle-spot land guaranteed">100</dt>
-          <dd>every match</dd>
+          <dd>fixed spawn</dd>
         </div>
         <div>
           <dt class="vehicle-spot land">34</dt>
-          <dd>chance, %</dd>
+          <dd>chance, about %</dd>
         </div>
         <div>
           <dt class="vehicle-spot water">27</dt>
@@ -135,6 +137,12 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
           <dd>glider</dd>
         </div>
       </dl>
+      <p v-if="vehiclesCount > 0 && vehiclesVisible" class="legend-note">
+        Estimated from the game files for normal and ranked matches: vehicles per match divided by spawn points.
+        <template v-if="vehiclesUnplaced.length > 0">
+          Not on the map, the files give no points for them: {{ vehiclesUnplaced.join(', ') }}.
+        </template>
+      </p>
 
       <div v-if="devMode" class="toggles dev" aria-label="Dev tools">
         <button type="button" :aria-pressed="statusBarVisible" @click="statusBarVisible = !statusBarVisible">
@@ -381,6 +389,14 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 
 .legend dd {
   margin: 0;
+}
+
+.legend-note {
+  margin: -2px 0 0;
+  padding: 0 12px 10px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--sand-dim);
 }
 
 .toggles .end {

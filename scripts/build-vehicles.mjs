@@ -8,7 +8,9 @@
 // Source: the per-map level dumps pubg.gs extracts from the game files
 // (https://pubg.gs/layers/<codename>.json). Each spot carries a group letter; the map's spawn
 // table says how many vehicles a group gets per match. A match fills `count` of the group's
-// spots, so the chance of one spot is count / spots.
+// spots, so the chance of one spot is count / spots. That assumes every spot of a group is equally
+// likely: the game files carry no per-spot weight, but the pick itself is not documented.
+// Rules whose spawn points are not in the dump (garages on several maps) are listed as `unplaced`.
 
 import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -53,22 +55,35 @@ const round = (n) => Math.round(n * 10) / 10
 export const buildMap = (dump) => {
     const scale = IMAGE_PX / dump.extent
     // spots placed for the Intense Battle Royale mode are not part of a regular match
-    const spots = dump.layers.vehicles.filter((s) => s.mode !== 'IBR' && s.group)
+    // (they also carry regular group letters, so filter on the mode, not the letter)
+    const seen = new Set()
+    const spots = dump.layers.vehicles.filter((s) => {
+        if (s.mode || !s.group) return false
+        // the dump has a few exact duplicates (Miramar gliders); count each place once
+        const key = `${s.group}:${s.x}:${s.y}`
+        return !seen.has(key) && seen.add(key)
+    })
     const byLetter = Map.groupBy(spots, (s) => (s.group === 'Default' ? 'A' : s.group))
 
     const groups = []
     const points = []
+    const unplaced = []
 
     for (const [letter, rules] of Object.entries(dump.vehicleRules?.br?.groups ?? {})) {
         const members = byLetter.get(letter) ?? []
         // a letter can carry several rules (Rondo: Water and Pico bus); they share the same spots
-        const live = rules.filter((r) => r.count[1] > 0)
-        if (members.length === 0 || live.length === 0) continue
+        // a rule with no vehicles to pick from spawns nothing, whatever its count (Erangel "Water")
+        const live = rules.filter((r) => r.count[1] > 0 && r.vehicles.length > 0)
+        if (live.length === 0) continue
 
         const min = live.reduce((sum, r) => sum + r.count[0], 0)
         const max = live.reduce((sum, r) => sum + r.count[1], 0)
         const category = live.map((r) => r.categories.join(' / ')).join(' + ')
         const vehicles = [...new Set(live.flatMap((r) => r.vehicles))]
+        if (members.length === 0) {
+            unplaced.push({ name: labelOf(category), count: min === max ? min : [min, max], vehicles })
+            continue
+        }
         const chance = Math.min(100, round((100 * (min + max)) / 2 / members.length))
 
         const index = groups.length
@@ -86,7 +101,7 @@ export const buildMap = (dump) => {
 
     // stable order keeps regenerated diffs small
     points.sort((a, b) => a[2] - b[2] || a[1] - b[1] || a[0] - b[0])
-    return { groups, spots: points }
+    return { groups, spots: points, unplaced }
 }
 
 const load = async (codename, from) => {
@@ -105,14 +120,16 @@ const render = (data) => {
         '/**',
         ' * Vehicle spawn spots per map id. `groups` are the spawn-table rows: a match fills `count` of the',
         " * group's `spots`, so `chance` (percent) = count / spots. `fixed` marks the fixed (esports) spawns.",
-        ' * `spots` entries are [x, y, groupIndex] in source-image pixels.',
+        ' * `spots` entries are [x, y, groupIndex] in source-image pixels. `unplaced` are table rows whose',
+        ' * spawn points are not in the game-file dump, so they cannot be drawn.',
         ' */',
         'export const VEHICLES = {',
     ]
     for (const [id, map] of Object.entries(data)) {
         lines.push(`    ${id}: {`, '        groups: [')
         for (const g of map.groups) lines.push(`            ${JSON.stringify(g)},`)
-        lines.push('        ],', '        // prettier-ignore', `        spots: ${JSON.stringify(map.spots)},`, '    },')
+        lines.push('        ],', `        unplaced: ${JSON.stringify(map.unplaced)},`)
+        lines.push('        // prettier-ignore', `        spots: ${JSON.stringify(map.spots)},`, '    },')
     }
     lines.push('}', '')
     return lines.join('\n')

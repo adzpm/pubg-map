@@ -27,7 +27,7 @@ describe('buildMap', () => {
     })
 
     it('uses the middle of a count range and keeps the range', () => {
-        const [group] = buildMap(dump(many(40, 'B'), { B: [rule('Start', [8, 10])] })).groups
+        const [group] = buildMap(dump(many(40, 'B'), { B: [rule('Start', [8, 10], ['Buggy'])] })).groups
 
         expect(group.chance).toBe(22.5)
         expect(group.count).toEqual([8, 10])
@@ -48,10 +48,29 @@ describe('buildMap', () => {
     it('leaves out Intense BR spots, groups with no rule, rules with no spots and zero counts', () => {
         const spots = [spot(1, 1, 'Default', 'IBR'), spot(2, 2, 'K'), spot(3, 3, 'E'), spot(4, 4, null, 'IBR')]
         const map = buildMap(
-            dump(spots, { A: [rule('Road', [5, 5])], C: [rule('Garage', [8, 8])], E: [rule('Water', [0, 0])] }),
+            dump(spots, {
+                A: [rule('Road', [5, 5], ['Uaz'])],
+                C: [rule('Garage', [8, 8], ['Dacia'])],
+                E: [rule('Water', [0, 0])],
+            }),
         )
 
-        expect(map).toEqual({ groups: [], spots: [] })
+        expect(map.groups).toEqual([])
+        expect(map.spots).toEqual([])
+        // rules with vehicles to spawn but no regular points in the dump are reported, not drawn
+        expect(map.unplaced.map((u) => u.name)).toEqual(['Road', 'Garage'])
+        expect(map.unplaced[1]).toEqual({ name: 'Garage', count: 8, vehicles: ['Dacia'] })
+    })
+
+    it('skips a rule that has a count but no vehicles to spawn', () => {
+        expect(buildMap(dump(many(149, 'E'), { E: [rule('Water', [5, 5])] })).groups).toEqual([])
+    })
+
+    it('counts spots listed twice at the same place once', () => {
+        const spots = [...many(20, 'O'), spot(3, 3, 'O')]
+        const [group] = buildMap(dump(spots, { O: [rule('Motorglider', [4, 4], ['Motorglider'])] })).groups
+
+        expect(group).toMatchObject({ spots: 20, chance: 20 })
     })
 
     it('adds up the live rules on one letter and ignores its zero-count ones', () => {

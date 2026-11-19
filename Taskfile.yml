@@ -73,6 +73,11 @@ tasks:
     cmds:
       - ./scripts/fetch-tiles.sh {{.CLI_ARGS}}
 
+  vehicles:build:
+    desc: Rebuild vehicle spawn spots and chances (web/src/data/vehicles.js) from pubg.gs game-file dumps
+    cmds:
+      - node scripts/build-vehicles.mjs {{.CLI_ARGS}}
+
   tiles:generate:
     desc: Generate map tiles from assets/maps/*.png into web/public/assets/tiles
     cmds:

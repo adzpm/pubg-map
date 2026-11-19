@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { MAPS } from '@/data/maps'
 import { SECRET_ROOMS } from '@/data/secrets'
-import { vehicleSpotCount } from '@/lib/vehicles'
+import { unplacedVehicles, vehicleSpotCount } from '@/lib/vehicles'
 import { usePersistentRef } from '@/composables/usePersistentRef'
 import { useDevMode } from '@/composables/useDevMode'
 import { useDevTools } from '@/composables/useDevTools'
@@ -29,6 +29,7 @@ const cursor = ref({ visible: false, px: 0, py: 0, cell: '', col: -1, row: -1 })
 
 const secretsCount = computed(() => (SECRET_ROOMS[currentMap.value.id] ?? []).length)
 const vehiclesCount = computed(() => vehicleSpotCount(currentMap.value.id))
+const vehiclesUnplaced = computed(() => unplacedVehicles(currentMap.value.id))
 
 const windowRef = ref(null)
 
@@ -85,6 +86,7 @@ const onMapClick = (point) => {
       :cursor="cursor"
       :secrets-count="secretsCount"
       :vehicles-count="vehiclesCount"
+      :vehicles-unplaced="vehiclesUnplaced"
       :dev-mode="devMode"
       :dev-tools="devTools"
       @select="selectMap"

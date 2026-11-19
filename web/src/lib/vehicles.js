@@ -15,13 +15,19 @@ export const chanceLabel = (group) => {
     return String(Math.min(99, Math.max(1, Math.round(group.chance))))
 }
 
-const countText = (count) => (Array.isArray(count) ? `${count[0]}–${count[1]}` : String(count))
+/** Table rows the map cannot show because the game files do not say where they spawn. */
+export const unplacedVehicles = (mapId) =>
+    (VEHICLES[mapId]?.unplaced ?? []).map((u) => `${u.name} (${countText(u.count)} per match)`)
+
+function countText(count) {
+    return Array.isArray(count) ? `${count[0]}–${count[1]}` : String(count)
+}
 
 /** Tooltip text: what the group is, the odds in plain words, and what can spawn there. */
 export const describeGroup = (group) => {
     const odds = isGuaranteed(group)
-        ? `Every match: all ${group.spots} spots get a vehicle`
-        : `${chanceLabel(group)}% per match: ${countText(group.count)} of ${group.spots} spots get a vehicle`
+        ? `Fixed spawn: a vehicle on each of these ${group.spots} points every match`
+        : `About ${chanceLabel(group)}% each: ${countText(group.count)} vehicles per match across ${group.spots} points`
     const what = group.vehicles.length > 0 ? group.vehicles.join(', ') : ''
     return [group.name, odds, what].filter(Boolean)
 }

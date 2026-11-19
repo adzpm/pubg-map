@@ -1,6 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import L from 'leaflet'
-import { buildVehiclesLayer, chanceLabel, describeGroup, isGuaranteed, vehicleSpotCount } from '@/lib/vehicles'
+import {
+    buildVehiclesLayer,
+    chanceLabel,
+    describeGroup,
+    isGuaranteed,
+    unplacedVehicles,
+    vehicleSpotCount,
+} from '@/lib/vehicles'
 
 vi.mock('@/data/vehicles', () => ({
     VEHICLES: {
@@ -25,6 +32,10 @@ vi.mock('@/data/vehicles', () => ({
                     vehicles: ['Boat <PG117>'],
                 },
                 { name: 'Start', kind: 'land', fixed: false, chance: 20.9, count: [8, 10], spots: 43, vehicles: [] },
+            ],
+            unplaced: [
+                { name: 'Garage', count: 8, vehicles: ['Dacia'] },
+                { name: 'Offroad', count: [4, 8], vehicles: ['Buggy'] },
             ],
             spots: [
                 [10, 20, 0],
@@ -65,13 +76,17 @@ describe('describeGroup', () => {
     it('spells out the odds as count of spots', () => {
         const road = group({ name: 'Road', chance: 34.4, count: 143, spots: 416, vehicles: ['Uaz', 'Dacia'] })
 
-        expect(describeGroup(road)).toEqual(['Road', '34% per match: 143 of 416 spots get a vehicle', 'Uaz, Dacia'])
+        expect(describeGroup(road)).toEqual([
+            'Road',
+            'About 34% each: 143 vehicles per match across 416 points',
+            'Uaz, Dacia',
+        ])
     })
 
     it('shows a count range and drops an empty vehicle list', () => {
         const start = group({ chance: 20.9, count: [8, 10], spots: 43 })
 
-        expect(describeGroup(start)[1]).toBe('21% per match: 8–10 of 43 spots get a vehicle')
+        expect(describeGroup(start)[1]).toBe('About 21% each: 8–10 vehicles per match across 43 points')
         expect(describeGroup(start)).toHaveLength(2)
     })
 
@@ -79,7 +94,14 @@ describe('describeGroup', () => {
         const fixed = group({ chance: 100, count: 23, spots: 23 })
 
         expect(isGuaranteed(fixed)).toBe(true)
-        expect(describeGroup(fixed)[1]).toBe('Every match: all 23 spots get a vehicle')
+        expect(describeGroup(fixed)[1]).toBe('Fixed spawn: a vehicle on each of these 23 points every match')
+    })
+})
+
+describe('unplacedVehicles', () => {
+    it('lists table rows that have no points on the map', () => {
+        expect(unplacedVehicles('testmap')).toEqual(['Garage (8 per match)', 'Offroad (4–8 per match)'])
+        expect(unplacedVehicles('nowhere')).toEqual([])
     })
 })
 
