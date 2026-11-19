@@ -127,8 +127,8 @@ unlocks:
 
 ## Deployment
 
-The production image is a two-stage build: `node:24.20.0-alpine` builds the bundle,
-`nginxinc/nginx-unprivileged:1.31.4-alpine` serves it as uid 101 on port 8080, with the full tile tree baked in and a
+The production image is a two-stage build: `node:26.13.1-alpine` builds the bundle,
+`nginxinc/nginx-unprivileged:1.31.7-alpine` serves it as uid 101 on port 8080, with the full tile tree baked in and a
 `GET /healthz` endpoint answering `ok`.
 
 ### Docker
@@ -190,7 +190,7 @@ task test       # vitest, jsdom + @vue/test-utils
 ```
 
 Tests live in `web/tests/` mirroring `src/`; `npm run coverage` adds a V8 coverage report and `npm run test:watch`
-keeps Vitest running. CI runs `lint`, `format:check`, `test` and `build` on Node 24, builds the Docker image, and
+keeps Vitest running. CI runs `lint`, `format:check`, `test` and `build` on Node 26, builds the Docker image, and
 lints/templates the Helm chart on every pull request and push to `main`. Tagged `vX.Y.Z` releases push the multi-arch
 image to `ghcr.io/adzpm/pubg-map`, push the chart to `oci://ghcr.io/adzpm/charts` and create a GitHub Release
 with the Windows x64 overlay binaries attached.
