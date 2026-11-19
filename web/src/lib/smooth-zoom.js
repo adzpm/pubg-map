@@ -49,6 +49,9 @@ L.Map.SmoothZoom = L.Handler.extend({
         const pos = L.DomUtil.getPosition(pane)
         pane.style.transformOrigin = `${this._originX - pos.x}px ${this._originY - pos.y}px`
         pane.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${this._scale})`
+        // the pane is only CSS-scaled until _settle, so Leaflet fires no move/zoom events meanwhile;
+        // screen-space overlays (the grid edge labels) follow this event instead
+        this._map.fire('smoothzoom', { scale: this._scale, origin: L.point(this._originX, this._originY) })
     },
 
     _settle: function () {
@@ -64,6 +67,7 @@ L.Map.SmoothZoom = L.Handler.extend({
 
         map.setZoomAround(L.point(this._originX, this._originY), target, { animate: false })
         this._scale = 1
+        map.fire('smoothzoomend')
     },
 })
 

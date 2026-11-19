@@ -1,18 +1,38 @@
-html {
+/* Field case: olive case, sand text, one signal orange for "this one" (current map, square, rooms). */
+:root {
+    --case: #262a20;
+    --case-2: #30352a;
+    --sand: #e2d6b4;
+    --sand-dim: #9a9178;
+    --signal: #ff7438;
+    --rule: rgb(226 214 180 / 16%);
+    --sea: #0d1a22;
+
+    --font-body: 'Barlow', system-ui, sans-serif;
+    --font-condensed: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+
+    color-scheme: dark;
+    font-family: var(--font-body);
     font-size: 100%;
+    line-height: 1.4;
+    color: var(--sand);
+    background: var(--sea);
+    -webkit-font-smoothing: antialiased;
 }
 
-*:focus,
-*:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 html,
 body,
 #app {
     height: 100%;
+    margin: 0;
     overflow: hidden;
+    overflow: clip;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -26,8 +46,28 @@ textarea,
     -webkit-user-select: text;
 }
 
+button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+:focus {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: -2px;
+}
+
 .leaflet-container {
-    background: var(--bs-body-bg);
+    background: var(--sea);
+    font: inherit;
     outline: none;
 }
 
@@ -37,39 +77,31 @@ textarea,
     image-rendering: crisp-edges;
 }
 
-.pubg-grid-line {
-    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 1));
-}
-
+.pubg-grid-line,
 .pubg-grid-subline {
-    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 1));
+    filter: drop-shadow(0 0 1px rgb(0 0 0 / 100%));
 }
 
-.pubg-grid-label {
-    color: var(--bs-body-color);
-    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 1));
-    user-select: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+/* secret room: a diamond map symbol; background comes from the room's color */
+.secret-room {
+    width: 14px;
+    height: 14px;
+    margin: 1px;
+    transform: rotate(45deg);
+    border: 2px solid #1a1206;
+    box-shadow: 0 0 0 1px rgb(255 116 56 / 50%);
 }
 
-.floating-panel {
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+.leaflet-tooltip {
+    padding: 4px 8px;
+    background: var(--case);
+    color: var(--sand);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 50%);
+    font: 600 13px/1.2 var(--font-body);
 }
 
-.floating-sidebar {
-    max-height: calc(100vh - 2.5rem);
-    width: max-content;
-    min-width: min(250px, calc(100vw - 2rem));
-    max-width: calc(100vw - 2rem);
-    transition: background-color 0.2s ease;
-}
-
-.floating-sidebar:hover,
-.floating-sidebar:focus-within {
-    --bs-bg-opacity: 1;
+.leaflet-tooltip-top::before {
+    border-top-color: var(--case);
 }

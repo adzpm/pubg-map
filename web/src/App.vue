@@ -5,7 +5,8 @@ import { SECRET_ROOMS } from '@/data/secrets'
 import { usePersistentRef } from '@/composables/usePersistentRef'
 import { useDevMode } from '@/composables/useDevMode'
 import { useDevTools } from '@/composables/useDevTools'
-import AppSidebar from '@/components/AppSidebar.vue'
+import { useHotkeys } from '@/composables/useHotkeys'
+import AppWindow from '@/components/AppWindow.vue'
 import AppMapViewer from '@/components/AppMapViewer.vue'
 import AppStatusBar from '@/components/AppStatusBar.vue'
 
@@ -22,9 +23,9 @@ const currentMap = computed({
 const gridVisible = usePersistentRef('gridVisible', true)
 const secretsVisible = usePersistentRef('secretsVisible', true)
 const statusBarVisible = usePersistentRef('statusBarVisible', true)
-const cursor = ref({ visible: false, px: 0, py: 0, cell: '' })
+const cursor = ref({ visible: false, px: 0, py: 0, cell: '', col: -1, row: -1 })
 
-const hasSecrets = computed(() => (SECRET_ROOMS[currentMap.value.id] ?? []).length > 0)
+const secretsCount = computed(() => (SECRET_ROOMS[currentMap.value.id] ?? []).length)
 
 const { enabled: devMode } = useDevMode()
 
@@ -35,6 +36,17 @@ const selectMap = (map) => {
   currentMap.value = map
 }
 
+useHotkeys({
+  maps: MAPS,
+  select: selectMap,
+  toggleGrid: () => {
+    gridVisible.value = !gridVisible.value
+  },
+  toggleSecrets: () => {
+    if (secretsCount.value > 0) secretsVisible.value = !secretsVisible.value
+  },
+})
+
 const onMapClick = (point) => {
   if (!devMode.value) return
   dispatchDevTool('onMapClick', { ...point, mapId: currentMap.value.id })
@@ -42,33 +54,48 @@ const onMapClick = (point) => {
 </script>
 
 <template>
-  <div class="position-relative vh-100 overflow-hidden">
-    <main class="d-flex flex-column h-100">
-      <AppMapViewer
-        :current-map="currentMap"
-        :grid-visible="gridVisible"
-        :secrets-visible="secretsVisible"
-        :dev-mode="devMode"
-        @cursor="cursor = $event"
-        @map-click="onMapClick"
-      />
-    </main>
-    <AppSidebar
+  <main class="app">
+    <AppMapViewer
+      :current-map="currentMap"
+      :grid-visible="gridVisible"
+      :secrets-visible="secretsVisible"
+      :dev-mode="devMode"
+      :cursor="cursor"
+      @cursor="cursor = $event"
+      @map-click="onMapClick"
+    />
+    <AppWindow
       v-model:grid-visible="gridVisible"
       v-model:secrets-visible="secretsVisible"
       v-model:status-bar-visible="statusBarVisible"
-      class="floating-panel floating-sidebar position-absolute top-0 start-0 m-3"
       :maps="MAPS"
       :current-map="currentMap"
-      :secrets-available="hasSecrets"
+      :cursor="cursor"
+      :secrets-count="secretsCount"
       :dev-mode="devMode"
       :dev-tools="devTools"
       @select="selectMap"
     />
-    <AppStatusBar
-      v-if="devMode && statusBarVisible"
-      class="floating-panel position-absolute bottom-0 end-0 m-3"
-      :cursor="cursor"
-    />
-  </div>
+    <AppStatusBar v-if="devMode && statusBarVisible" class="status" :cursor="cursor" />
+  </main>
 </template>
+
+<style scoped>
+.app {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  /* clip, not hidden: a hidden box can still be scrolled by focus or scrollIntoView, which shifted
+     the whole map when a focused control in the window briefly hung past the screen edge */
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* above the bottom row of grid letters */
+.status {
+  position: absolute;
+  left: 12px;
+  bottom: 36px;
+  z-index: 1000;
+}
+</style>

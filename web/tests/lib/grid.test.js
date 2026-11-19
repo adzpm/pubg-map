@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import L from 'leaflet'
-import { buildGridLayer, createCellHighlight } from '@/lib/grid'
+import { buildGridLayer, cellName, columnName, createCellHighlight, gridAxes } from '@/lib/grid'
 
 // Identity projection: source pixel (x, y) -> LatLng(y, x), so lng mirrors x and lat mirrors y
 const toLL = (x, y) => L.latLng(y, x)
@@ -50,23 +50,44 @@ describe('buildGridLayer', () => {
         }
     })
 
-    it('labels columns with letters and rows with numbers, centered on their cells', () => {
-        const { markers } = build()
-        expect(markers).toHaveLength(cells.x + cells.y)
-
-        const byHtml = new Map(markers.map((m) => [m.options.icon.options.html, m.getLatLng()]))
-        expect([...byHtml.keys()].sort()).toEqual(['1', '2', '3', 'A', 'B'])
-
-        expect(byHtml.get('A')).toMatchObject({ lat: 0, lng: 50 })
-        expect(byHtml.get('B')).toMatchObject({ lat: 0, lng: 150 })
-        expect(byHtml.get('1')).toMatchObject({ lat: 50, lng: 0 })
-        expect(byHtml.get('3')).toMatchObject({ lat: 250, lng: 0 })
+    it('draws lines only: labels live on the screen edges, not in the layer', () => {
+        const { layers, markers } = build()
+        expect(markers).toHaveLength(0)
+        expect(layers.every((layer) => layer instanceof L.Polyline)).toBe(true)
     })
 
     it('keeps every grid element non-interactive', () => {
         const { layers } = build()
         expect(layers.length).toBeGreaterThan(0)
         for (const layer of layers) expect(layer.options.interactive).toBe(false)
+    })
+})
+
+describe('cell names', () => {
+    it('names columns with letters and rows with one-based numbers', () => {
+        expect(columnName(0)).toBe('A')
+        expect(columnName(7)).toBe('H')
+        expect(cellName(2, 3)).toBe('C4')
+        expect(cellName(0, 0)).toBe('A1')
+    })
+})
+
+describe('gridAxes', () => {
+    // scale 0.5 and shift (10, 20): a stand-in for Leaflet's source-pixel -> container projection
+    const project = (x, y) => ({ x: x / 2 + 10, y: y / 2 + 20 })
+
+    it('returns the screen extent of every column and row with its label', () => {
+        const { cols, rows } = gridAxes({ x: 2, y: 3 }, 200, 300, project)
+
+        expect(cols).toEqual([
+            { index: 0, label: 'A', a: 10, b: 60 },
+            { index: 1, label: 'B', a: 60, b: 110 },
+        ])
+        expect(rows).toEqual([
+            { index: 0, label: '1', a: 20, b: 70 },
+            { index: 1, label: '2', a: 70, b: 120 },
+            { index: 2, label: '3', a: 120, b: 170 },
+        ])
     })
 })
 

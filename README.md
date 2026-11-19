@@ -26,7 +26,11 @@ Leaflet do what it does best. Then layer game data on top.
   the pixel. The ~12k tiles are committed, so cloning the repo is all you need; each tile set carries a version that
   busts browser and PWA caches when the maps are refreshed.
 - **Live grid + cell highlight** — main grid (A–H × 1–8 on the big maps, scaled down to 2×2 on Karakin) plus 10×
-  sub-divisions; the hovered cell is highlighted in real time and each cell maps to 1 km in-game.
+  sub-divisions, each cell 1 km in-game. Column letters and row numbers stay pinned to the screen edges at any zoom, and
+  the square under the cursor lights up there and in the map window.
+- **Floating map window** — map picker, layers and the current square in one window you can drag anywhere (it sticks
+  to screen edges) and fold into a single bar; it remembers where you left it. Keys: `1`–`9` pick a map, `G` toggles
+  the grid, `R` the secret rooms.
 - **Secret-rooms layer** — community POI data for Erangel, Taego, Deston, Rondo, Paramo and Vikendi.
 - **PWA offline caching** — `vite-plugin-pwa` precaches the app shell and caches map tiles at runtime, so the maps you
   have opened keep working without a connection.
@@ -76,12 +80,13 @@ flowchart LR
 
 ```
 ├── assets/maps/           source PNGs (not committed; see "Bringing your own maps")
+├── design/concepts/      UI prototypes on real tiles (task design:concepts)
 ├── scripts/fetch-tiles.sh sync tile pyramids from pubg.gs, skips up-to-date maps
 ├── scripts/build-tiles.sh PNG -> WebP pyramid via libvips, idempotent
 ├── web/                   Vue 3 + Leaflet SPA (Vite, PWA)
 │   ├── public/assets/tiles/  generated tile pyramids, committed
-│   ├── src/components/    map viewer, sidebar, status bar
-│   ├── src/composables/   leaflet map, dev mode, dev tools, persistent refs
+│   ├── src/components/    map viewer with edge labels, floating map window, status bar
+│   ├── src/composables/   leaflet map, floating window, hotkeys, dev mode, dev tools, persistent refs
 │   ├── src/lib/           grid, secrets, tiles, smooth zoom, dev tools
 │   ├── src/data/          map registry (maps.js) and secret rooms (secrets.js)
 │   └── tests/             Vitest suites mirroring src/
@@ -118,7 +123,7 @@ serves an outdated map. After an update, re-check secret-room coordinates on rew
 ## Dev mode
 
 Type `D` `E` `V` (within 5 seconds, outside form fields) to toggle dev mode; the flag persists across reloads. It
-unlocks:
+adds a dev section to the map window with:
 
 - **Status bar** — the current grid cell and source-image pixel coordinates under the cursor, so screenshots and
   callouts share the same vocabulary.

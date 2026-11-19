@@ -2,8 +2,9 @@ import L from 'leaflet'
 
 const SUBDIV = 10
 
+// sand-coloured lines from the field-case palette (--sand in main.css)
 const SUB_STYLE = {
-    color: '#fff',
+    color: '#e2d6b4',
     weight: 1,
     opacity: 0.1,
     interactive: false,
@@ -11,24 +12,31 @@ const SUB_STYLE = {
 }
 
 const MAIN_STYLE = {
-    color: '#fff',
+    color: '#e2d6b4',
     weight: 1,
-    opacity: 0.3,
+    opacity: 0.4,
     interactive: false,
     className: 'pubg-grid-line',
 }
 
+// signal orange (--signal), kept faint: the edge labels carry the strong highlight
 const HIGHLIGHT_STYLE = {
-    color: '#fff',
+    color: '#ff7438',
     weight: 0,
-    fillColor: '#fff',
-    fillOpacity: 0.05,
+    fillColor: '#ff7438',
+    fillOpacity: 0.08,
     interactive: false,
 }
 
 const cellSize = (cells, w, h) => ({ cw: w / cells.x, ch: h / cells.y })
 
-/** Builds the lettered grid overlay; w/h are source-image pixels, toLL projects them at maxNativeZoom. */
+/** Column letter for a zero-based column index: 0 -> A. */
+export const columnName = (col) => String.fromCharCode(65 + col)
+
+/** Grid cell name for zero-based col/row: (2, 3) -> C4. */
+export const cellName = (col, row) => `${columnName(col)}${row + 1}`
+
+/** Builds the grid line overlay; w/h are source-image pixels, toLL projects them at maxNativeZoom. */
 export const buildGridLayer = (cells, w, h, toLL) => {
     const layer = L.layerGroup()
     const { cw, ch } = cellSize(cells, w, h)
@@ -55,31 +63,28 @@ export const buildGridLayer = (cells, w, h, toLL) => {
         L.polyline([toLL(0, j * ch), toLL(w, j * ch)], MAIN_STYLE).addTo(layer)
     }
 
-    for (let i = 0; i < cells.x; i++) {
-        L.marker(toLL(i * cw + cw / 2, 0), {
-            interactive: false,
-            icon: L.divIcon({
-                className: 'pubg-grid-label',
-                html: String.fromCharCode(65 + i),
-                iconSize: [cw, 0],
-                iconAnchor: [cw / 2, 0],
-            }),
-        }).addTo(layer)
-    }
-
-    for (let j = 0; j < cells.y; j++) {
-        L.marker(toLL(0, j * ch + ch / 2), {
-            interactive: false,
-            icon: L.divIcon({
-                className: 'pubg-grid-label',
-                html: String(j + 1),
-                iconSize: [0, ch],
-                iconAnchor: [0, ch / 2],
-            }),
-        }).addTo(layer)
-    }
-
     return layer
+}
+
+/**
+ * Screen extents of every column and row, for the labels pinned to the screen edges.
+ * project(x, y) maps source-image pixels to container pixels; a/b are the start/end edge.
+ */
+export const gridAxes = (cells, w, h, project) => {
+    const { cw, ch } = cellSize(cells, w, h)
+    const cols = Array.from({ length: cells.x }, (_, i) => ({
+        index: i,
+        label: columnName(i),
+        a: project(i * cw, 0).x,
+        b: project((i + 1) * cw, 0).x,
+    }))
+    const rows = Array.from({ length: cells.y }, (_, j) => ({
+        index: j,
+        label: String(j + 1),
+        a: project(0, j * ch).y,
+        b: project(0, (j + 1) * ch).y,
+    }))
+    return { cols, rows }
 }
 
 /** Creates a show(map, col, row)/hide(map) controller for the hovered-cell rectangle; same conventions as buildGridLayer. */

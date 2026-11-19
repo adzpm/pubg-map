@@ -20,8 +20,8 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "bootstrap": "5.3.9",
-    "bootstrap-icons": "1.13.2",
+    "@fontsource/barlow": "5.3.0",
+    "@fontsource/barlow-condensed": "5.3.0",
     "leaflet": "1.9.4",
     "vue": "3.5.45"
   },

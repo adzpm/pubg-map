@@ -121,16 +121,16 @@ describe('useLeafletMap', () => {
         // alpha cell size is 256x128, so (300, 200) is in column B, row 2
         map.fire('mousemove', { latlng: at(300, 200) })
 
-        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 300, py: 200, cell: 'B2' })
+        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 300, py: 200, cell: 'B2', col: 1, row: 1 })
         expect(hasHighlight()).toBe(true)
 
         map.fire('mousemove', { latlng: at(2048, 1024) })
-        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 2048, py: 1024, cell: 'H8' })
+        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 2048, py: 1024, cell: 'H8', col: 7, row: 7 })
     })
 
     it('clears the cursor and highlight when the pointer leaves the image', async () => {
         const map = await mountMap()
-        const empty = { visible: false, px: 0, py: 0, cell: '' }
+        const empty = { visible: false, px: 0, py: 0, cell: '', col: -1, row: -1 }
 
         map.fire('mousemove', { latlng: at(300, 200) })
         map.fire('mousemove', { latlng: at(2100, 200) })
@@ -157,7 +157,7 @@ describe('useLeafletMap', () => {
 
         map.fire('mousemove', { latlng: at(300, 200) })
         expect(hasHighlight()).toBe(false)
-        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 300, py: 200, cell: 'B2' })
+        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 300, py: 200, cell: 'B2', col: 1, row: 1 })
 
         gridVisible.value = true
         await nextTick()
@@ -180,7 +180,30 @@ describe('useLeafletMap', () => {
 
         // beta cell size is 256x256, so (300, 700) is in column B, row 3
         map.fire('mousemove', { latlng: at(300, 700, 2) })
-        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 300, py: 700, cell: 'B3' })
+        expect(onCursor).toHaveBeenLastCalledWith({ visible: true, px: 300, py: 700, cell: 'B3', col: 1, row: 2 })
+    })
+
+    it('exposes the screen extent of every grid column and row for the edge labels', async () => {
+        const map = await mountMap()
+        const { cols, rows } = leaflet.axes.value
+
+        expect(cols.map((c) => c.label)).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
+        expect(rows.map((r) => r.label)).toEqual(['1', '2', '3', '4', '5', '6', '7', '8'])
+        // edges match Leaflet's own projection of the cell boundaries
+        expect(cols[1].a).toBeCloseTo(map.latLngToContainerPoint(at(256, 0)).x, 6)
+        expect(rows[1].a).toBeCloseTo(map.latLngToContainerPoint(at(0, 128)).y, 6)
+    })
+
+    it('moves the axes with the smooth-zoom scale while the pane is only CSS-scaled', async () => {
+        const map = await mountMap()
+        const before = leaflet.axes.value.cols[2].a
+        const origin = L.point(400, 300)
+
+        map.fire('smoothzoom', { scale: 2, origin })
+        expect(leaflet.axes.value.cols[2].a).toBeCloseTo(origin.x + (before - origin.x) * 2, 6)
+
+        map.fire('smoothzoomend')
+        expect(leaflet.axes.value.cols[2].a).toBeCloseTo(before, 6)
     })
 
     it('requests tiles with the tile-set version from info.json', async () => {

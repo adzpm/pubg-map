@@ -30,3 +30,6 @@ coverage/
 # Helm packaging artifacts
 helm/*.tgz
 helm/**/*.tgz
+
+# UI design prototypes, local only (task design:concepts)
+design/

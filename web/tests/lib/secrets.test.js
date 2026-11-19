@@ -53,7 +53,7 @@ describe('buildSecretRoomsLayer', () => {
 
         const defaultA = markerAt(markers, 10, 20)
         const defaultB = markerAt(markers, 30, 40)
-        expect(defaultA.options.icon.options.html).toContain('var(--bs-pink)')
+        expect(defaultA.options.icon.options.html).toContain('var(--signal)')
         expect(defaultB.options.icon).toBe(defaultA.options.icon)
         expect(custom.options.icon).not.toBe(defaultA.options.icon)
     })

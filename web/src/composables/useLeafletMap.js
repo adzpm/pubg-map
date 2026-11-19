@@ -1,7 +1,7 @@
 import { onMounted, onBeforeUnmount, watch, shallowRef } from 'vue'
 import L from 'leaflet'
 import { computeMaxNativeZoom, fetchTileInfo, tileUrlTemplate, TILE_SIZE } from '@/lib/tiles'
-import { buildGridLayer, createCellHighlight } from '@/lib/grid'
+import { buildGridLayer, cellName, createCellHighlight, gridAxes } from '@/lib/grid'
 import { buildSecretRoomsLayer } from '@/lib/secrets'
 import '@/lib/smooth-zoom'
 
@@ -19,7 +19,8 @@ const MAP_OPTIONS = {
     smoothZoomSettleMs: 140,
 }
 
-const EMPTY_CURSOR = { visible: false, px: 0, py: 0, cell: '' }
+const EMPTY_CURSOR = { visible: false, px: 0, py: 0, cell: '', col: -1, row: -1 }
+const NO_AXES = { cols: [], rows: [] }
 
 /**
  * Mounts a Leaflet map into `container` and keeps it in sync with the given reactive state.
@@ -27,6 +28,8 @@ const EMPTY_CURSOR = { visible: false, px: 0, py: 0, cell: '' }
  */
 export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisible }, onCursor, onMapClick) => {
     const map = shallowRef(null)
+    // screen extents of grid columns/rows, for labels pinned to the screen edges
+    const axes = shallowRef(NO_AXES)
 
     let baseLayer = null
     let gridLayer = null
@@ -57,6 +60,30 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         if (map.value.getZoom() < minZoom) map.value.setZoom(minZoom)
     }
 
+    // A zoom in flight: Leaflet's animated zoom ({ center, zoom }) or the smooth-zoom CSS scale
+    // ({ scale, origin }). Container points are projected to where they will be on screen.
+    let liveZoom = null
+
+    const toContainer = (latlng) => {
+        const m = map.value
+        if (liveZoom?.center) {
+            const half = m.getSize().divideBy(2)
+            return m.project(latlng, liveZoom.zoom).subtract(m.project(liveZoom.center, liveZoom.zoom)).add(half)
+        }
+        const p = m.latLngToContainerPoint(latlng)
+        if (liveZoom?.origin) return liveZoom.origin.add(p.subtract(liveZoom.origin).multiplyBy(liveZoom.scale))
+        return p
+    }
+
+    const updateAxes = () => {
+        if (!map.value || !dims) {
+            axes.value = NO_AXES
+            return
+        }
+        const { w, h, maxZ, cells } = dims
+        axes.value = gridAxes(cells, w, h, (x, y) => toContainer(map.value.unproject([x, y], maxZ)))
+    }
+
     const cleanupLayers = () => {
         if (highlight) highlight.hide(map.value)
         for (const layer of [baseLayer, gridLayer, secretsLayer]) {
@@ -75,7 +102,7 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         const toLL = (px, py) => map.value.unproject([px, py], maxNativeZoom)
         const bounds = L.latLngBounds(toLL(0, h), toLL(w, 0))
 
-        dims = { w, h, maxZ: maxNativeZoom }
+        dims = { w, h, maxZ: maxNativeZoom, cells: def.cells }
         mapBounds = bounds
 
         baseLayer = L.tileLayer(tileUrlTemplate(def.id, version), {
@@ -102,6 +129,7 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         const { min: minZoom, init: initZoom } = fitZooms()
         map.value.setMinZoom(minZoom)
         map.value.setView(bounds.getCenter(), initZoom, { animate: false })
+        updateAxes()
     }
 
     const updateCursor = (e) => {
@@ -124,12 +152,7 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         if (gridVisible.value) highlight?.show(map.value, col, row)
         else highlight?.hide(map.value)
 
-        onCursor({
-            visible: true,
-            px,
-            py,
-            cell: `${String.fromCharCode(65 + col)}${row + 1}`,
-        })
+        onCursor({ visible: true, px, py, cell: cellName(col, row), col, row })
     }
 
     onMounted(async () => {
@@ -141,6 +164,19 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
             onCursor(EMPTY_CURSOR)
         })
         map.value.on('resize', applyMinZoom)
+        map.value.on('move zoom resize viewreset', updateAxes)
+        map.value.on('zoomanim', (e) => {
+            liveZoom = { center: e.center, zoom: e.zoom }
+            updateAxes()
+        })
+        map.value.on('smoothzoom', (e) => {
+            liveZoom = { scale: e.scale, origin: e.origin }
+            updateAxes()
+        })
+        map.value.on('zoomend smoothzoomend', () => {
+            liveZoom = null
+            updateAxes()
+        })
         map.value.on('click', (e) => {
             if (!dims || !onMapClick) return
             const pt = map.value.project(e.latlng, dims.maxZ)
@@ -174,5 +210,5 @@ export const useLeafletMap = (container, { currentMap, gridVisible, secretsVisib
         visible ? secretsLayer.addTo(map.value) : map.value.removeLayer(secretsLayer)
     })
 
-    return { map }
+    return { map, axes }
 }

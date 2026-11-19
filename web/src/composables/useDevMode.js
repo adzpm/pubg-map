@@ -1,15 +1,9 @@
 import { onMounted, onBeforeUnmount } from 'vue'
 import { usePersistentRef } from '@/composables/usePersistentRef'
+import { hasModifier, isTypingTarget } from '@/lib/keyboard'
 
 const SEQUENCE = ['KeyD', 'KeyE', 'KeyV']
 const WINDOW_MS = 5000
-
-const isTypingTarget = (target) => {
-    if (!target) return false
-    if (target.isContentEditable) return true
-    const tag = target.tagName
-    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
-}
 
 /** Persistent dev-mode flag toggled by typing the D-E-V key sequence outside form fields. */
 export const useDevMode = () => {
@@ -17,7 +11,7 @@ export const useDevMode = () => {
     let buffer = []
 
     const onKeyDown = (e) => {
-        if (e.ctrlKey || e.metaKey || e.altKey) return
+        if (hasModifier(e)) return
         if (isTypingTarget(e.target)) return
 
         const now = Date.now()

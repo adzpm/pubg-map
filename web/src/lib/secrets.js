@@ -1,7 +1,8 @@
 import L from 'leaflet'
 import { SECRET_ROOMS } from '@/data/secrets'
 
-const DEFAULT_COLOR = 'var(--bs-pink)'
+// signal orange from the field-case palette (main.css); a room's own color overrides it
+const DEFAULT_COLOR = 'var(--signal)'
 
 const iconCache = new Map()
 
@@ -10,9 +11,9 @@ const getIcon = (color) => {
     if (iconCache.has(key)) return iconCache.get(key)
     const icon = L.divIcon({
         className: '',
-        html: `<div style="width:24px;height:24px;background:transparent;border:2px solid ${key}"></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        html: `<div class="secret-room" style="background:${key}"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
     })
     iconCache.set(key, icon)
     return icon
