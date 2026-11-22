@@ -73,6 +73,11 @@ tasks:
     cmds:
       - ./scripts/fetch-tiles.sh {{.CLI_ARGS}}
 
+  og:build:
+    desc: Rebuild link preview images (web/public/og) from the tiles (task og:build -- [map-id ...])
+    cmds:
+      - ./scripts/build-og.sh {{.CLI_ARGS}}
+
   vehicles:build:
     desc: Rebuild vehicle spawn spots and chances (web/src/data/vehicles.js) from pubg.gs game-file dumps
     cmds:

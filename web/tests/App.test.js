@@ -10,7 +10,7 @@ vi.mock('@/composables/useLeafletMap', () => ({
     useLeafletMap: vi.fn(() => ({ map: { value: null } })),
 }))
 
-const mapButton = (wrapper, name) => wrapper.findAll('.maps button').find((b) => b.find('.name').text() === name)
+const mapButton = (wrapper, name) => wrapper.findAll('.maps a').find((b) => b.find('.name').text() === name)
 
 const press = async (code) => {
     window.dispatchEvent(new KeyboardEvent('keydown', { code, bubbles: true }))
@@ -24,6 +24,8 @@ describe('App', () => {
         wrapper?.unmount()
         localStorage.clear()
         vi.clearAllMocks()
+        window.history.replaceState(null, '', '/')
+        document.head.innerHTML = '<meta name="description" content="" /><link rel="canonical" href="" />'
     })
 
     it('starts on the first map by default and wires it into the viewer', () => {
@@ -127,5 +129,52 @@ describe('App', () => {
         await press('KeyF')
         await nextTick()
         expect(wrapper.find('.field-window .body').exists()).toBe(true)
+    })
+
+    it('opens the map named in the address, over the remembered one', () => {
+        localStorage.setItem('pubg-map:currentMapId', JSON.stringify('taego'))
+        window.history.replaceState(null, '', '/vikendi')
+
+        wrapper = mount(App)
+
+        expect(wrapper.findComponent(AppWindow).props('currentMap').id).toBe('vikendi')
+        expect(document.title).toContain('Vikendi')
+        expect(document.head.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(
+            'https://pubg.adz.pm/vikendi',
+        )
+    })
+
+    it('describes the site on the home page and the map once one is picked', async () => {
+        wrapper = mount(App)
+        expect(document.title).toBe('PUBG interactive maps: secret rooms, vehicle spawns, grid')
+
+        await mapButton(wrapper, 'Erangel').trigger('click')
+        await nextTick()
+
+        expect(window.location.pathname).toBe('/erangel')
+        expect(document.title).toContain('Erangel')
+        expect(document.head.querySelector('meta[name="description"]').getAttribute('content')).toContain('Erangel')
+    })
+
+    it('puts the picked map in the address and keeps the query string', async () => {
+        window.history.replaceState(null, '', '/?dev=1')
+        wrapper = mount(App)
+
+        await press('Digit3')
+
+        expect(window.location.pathname).toBe(`/${MAPS[2].id}`)
+        expect(window.location.search).toBe('?dev=1')
+    })
+
+    it('follows Back and Forward', async () => {
+        window.history.replaceState(null, '', '/taego')
+        wrapper = mount(App)
+
+        window.history.replaceState(null, '', '/sanhok')
+        window.dispatchEvent(new PopStateEvent('popstate'))
+        await nextTick()
+
+        expect(wrapper.findComponent(AppWindow).props('currentMap').id).toBe('sanhok')
+        expect(document.title).toContain('Sanhok')
     })
 })

@@ -2,11 +2,14 @@
 import { computed, ref } from 'vue'
 import { useFloatingWindow } from '@/composables/useFloatingWindow'
 import { isOverlay } from '@/lib/overlay'
+import { pathForMap } from '@/lib/route'
 import AppKey from '@/components/AppKey.vue'
 
 const props = defineProps({
   maps: { type: Array, required: true },
   currentMap: { type: Object, required: true },
+  /** What the page is about (lib/seo pageMeta): heading, about and fact lines. */
+  page: { type: Object, default: null },
   cursor: { type: Object, required: true },
   secretsCount: { type: Number, default: 0 },
   vehiclesCount: { type: Number, default: 0 },
@@ -16,7 +19,7 @@ const props = defineProps({
   devTools: { type: Array, default: () => [] },
 })
 
-defineEmits(['select'])
+const emit = defineEmits(['select'])
 
 const gridVisible = defineModel('gridVisible', { type: Boolean, required: true })
 const secretsVisible = defineModel('secretsVisible', { type: Boolean, required: true })
@@ -30,6 +33,14 @@ const { style, collapsed, dragging, toggle, handle } = useFloatingWindow(windowE
 defineExpose({ toggle })
 
 const overlay = isOverlay()
+
+// a modified click opens the map in a new tab, as links do; the overlay has no tabs, and players
+// often hold Ctrl or Shift, so there every click picks the map
+const onMapClick = (event, map) => {
+  if (!overlay && (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)) return
+  event.preventDefault()
+  emit('select', map)
+}
 
 const km = (map) => `${map.cells.x}×${map.cells.y} km`
 const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
@@ -78,18 +89,19 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 
     <div v-if="!collapsed" class="body">
       <nav class="maps" aria-label="Maps">
-        <button
+        <a
           v-for="(map, i) in maps"
           :key="map.id"
-          type="button"
-          :aria-pressed="map.id === currentMap.id"
+          :href="pathForMap(map.id)"
+          :aria-current="map.id === currentMap.id ? 'page' : undefined"
           :aria-keyshortcuts="i < 9 ? String(i + 1) : undefined"
-          @click="$emit('select', map)"
+          draggable="false"
+          @click="onMapClick($event, map)"
         >
           <AppKey v-if="i < 9" class="key" :keys="String(i + 1)" />
           <span class="name">{{ map.name }}</span>
           <span class="km">{{ km(map) }}</span>
-        </button>
+        </a>
       </nav>
 
       <div class="toggles">
@@ -159,6 +171,18 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
           <span class="box"></span>{{ entry.tool.name }}
         </button>
       </div>
+
+      <!-- the page in words: what this map shows. Closed by default, it is still part of the page -->
+      <details v-if="page && !overlay" class="about">
+        <summary>{{ page.id ? 'About this map' : 'About these maps' }}</summary>
+        <h1>{{ page.heading }}</h1>
+        <p>{{ page.about }}</p>
+        <ul>
+          <li v-for="line in page.lines" :key="line.text + (line.href ?? '')">
+            <template v-if="line.href">{{ line.label }}: </template>{{ line.text }}
+          </li>
+        </ul>
+      </details>
 
       <ul class="hints" aria-label="Keyboard shortcuts">
         <li><AppKey keys="F" />Fold window</li>
@@ -283,24 +307,27 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
   grid-template-columns: repeat(3, 1fr);
 }
 
-.maps button {
+/* real links, so each map has an address a search engine can follow and a tab can open */
+.maps a {
   position: relative;
+  color: inherit;
+  text-decoration: none;
   padding: 10px 10px 9px;
   text-align: left;
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
 }
 
-.maps button:nth-child(3n) {
+.maps a:nth-child(3n) {
   border-right: 0;
 }
 
-.maps button:hover,
-.maps button[aria-pressed='true'] {
+.maps a:hover,
+.maps a[aria-current='page'] {
   background: var(--case-2);
 }
 
-.maps button[aria-pressed='true']::before {
+.maps a[aria-current='page']::before {
   content: '';
   position: absolute;
   inset: 0 auto 0 0;
@@ -316,8 +343,8 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
   color: var(--sand-dim);
 }
 
-.maps button:hover .name,
-.maps button[aria-pressed='true'] .name {
+.maps a:hover .name,
+.maps a[aria-current='page'] .name {
   color: var(--sand);
 }
 
@@ -401,6 +428,43 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
 
 .toggles .end {
   margin-left: auto;
+}
+
+.about {
+  border-top: 1px solid var(--rule);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--sand-dim);
+}
+
+.about summary {
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.about summary:hover,
+.about[open] summary {
+  color: var(--sand);
+}
+
+.about h1 {
+  margin: 0;
+  padding: 0 12px;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--sand);
+}
+
+.about p {
+  margin: 4px 0 0;
+  padding: 0 12px;
+}
+
+.about ul {
+  margin: 6px 0 0;
+  padding: 0 12px 10px 28px;
 }
 
 .hints {

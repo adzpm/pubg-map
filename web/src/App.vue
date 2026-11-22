@@ -1,8 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount, watch } from 'vue'
 import { MAPS } from '@/data/maps'
 import { SECRET_ROOMS } from '@/data/secrets'
 import { unplacedVehicles, vehicleSpotCount } from '@/lib/vehicles'
+import { mapIdFromPath, pathForMap } from '@/lib/route'
+import { pageMeta } from '@/lib/seo'
+import { applyPageMeta } from '@/lib/head'
 import { usePersistentRef } from '@/composables/usePersistentRef'
 import { useDevMode } from '@/composables/useDevMode'
 import { useDevTools } from '@/composables/useDevTools'
@@ -12,6 +15,10 @@ import AppMapViewer from '@/components/AppMapViewer.vue'
 import AppStatusBar from '@/components/AppStatusBar.vue'
 
 const currentMapId = usePersistentRef('currentMapId', MAPS[0].id)
+// a map address (/taego) wins over the remembered map; the home page keeps showing the last one used
+const mapInPath = () => mapIdFromPath(window.location.pathname, MAPS)
+const onHome = ref(mapInPath() === null)
+if (!onHome.value) currentMapId.value = mapInPath()
 // normalize an unknown persisted id so storage never keeps a stale one across sessions
 if (!MAPS.some((m) => m.id === currentMapId.value)) currentMapId.value = MAPS[0].id
 const currentMap = computed({
@@ -38,9 +45,26 @@ const { enabled: devMode } = useDevMode()
 const { tools: devTools, dispatch: dispatchDevTool } = useDevTools()
 
 const selectMap = (map) => {
-  if (map.id === currentMap.value.id) return
+  if (map.id === currentMap.value.id && !onHome.value) return
   currentMap.value = map
+  onHome.value = false
+  if (mapInPath() !== map.id) {
+    window.history.pushState(null, '', pathForMap(map.id) + window.location.search + window.location.hash)
+  }
 }
+
+// Back and Forward walk through the maps that were opened
+const onPopState = () => {
+  const id = mapInPath()
+  onHome.value = id === null
+  if (id) currentMapId.value = id
+}
+window.addEventListener('popstate', onPopState)
+onBeforeUnmount(() => window.removeEventListener('popstate', onPopState))
+
+// the title, description and canonical address follow the map; on the home page they describe the site
+const page = computed(() => pageMeta(onHome.value ? null : currentMap.value))
+watch(page, applyPageMeta, { immediate: true })
 
 useHotkeys({
   maps: MAPS,
@@ -83,6 +107,7 @@ const onMapClick = (point) => {
       v-model:status-bar-visible="statusBarVisible"
       :maps="MAPS"
       :current-map="currentMap"
+      :page="page"
       :cursor="cursor"
       :secrets-count="secretsCount"
       :vehicles-count="vehiclesCount"

@@ -42,21 +42,62 @@ describe('AppWindow', () => {
         expect(wrapper.find('.title').text()).toBe('Alpha Isle8×8 km')
     })
 
-    it('renders a button per map with its hotkey and size and marks the current one', () => {
+    it('renders a link per map with its address, hotkey and size and marks the current one', () => {
         const wrapper = mountWindow()
-        const [alpha, beta] = wrapper.findAll('.maps button')
+        const [alpha, beta] = wrapper.findAll('.maps a')
 
         expect(alpha.find('.key').text()).toBe('1')
         expect(beta.find('.key').text()).toBe('2')
         expect(beta.find('.km').text()).toBe('4×4 km')
-        expect(alpha.attributes('aria-pressed')).toBe('true')
-        expect(beta.attributes('aria-pressed')).toBe('false')
+        expect(beta.attributes('href')).toBe(`/${maps[1].id}`)
+        expect(alpha.attributes('aria-current')).toBe('page')
+        expect(beta.attributes('aria-current')).toBeUndefined()
+    })
+
+    it('leaves a modified click to the browser so a map can open in a new tab', async () => {
+        const wrapper = mountWindow()
+
+        await wrapper.findAll('.maps a')[1].trigger('click', { ctrlKey: true })
+
+        expect(wrapper.emitted('select')).toBeUndefined()
+    })
+
+    it('picks the map on any click inside the overlay, where there are no tabs to open', async () => {
+        vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 pubg-map-overlay/0.2.0 Electron/45.4.1' })
+        const wrapper = mountWindow()
+
+        await wrapper.findAll('.maps a')[1].trigger('click', { ctrlKey: true })
+
+        expect(wrapper.emitted('select')).toEqual([[maps[1]]])
+    })
+
+    it('says in words what the page shows, and lists the maps on the home page', () => {
+        const page = {
+            id: 'alpha',
+            heading: 'Alpha map',
+            about: 'An island.',
+            lines: [{ text: '3 secret rooms marked' }],
+        }
+        const about = mountWindow({ page }).find('.about')
+
+        expect(about.find('h1').text()).toBe('Alpha map')
+        expect(about.text()).toContain('An island.')
+        expect(about.text()).toContain('3 secret rooms marked')
+
+        const home = {
+            id: null,
+            heading: 'Maps',
+            about: 'All.',
+            lines: [{ href: '/a', label: 'Alpha map', text: '8×8 km' }],
+        }
+        expect(mountWindow({ page: home }).find('.about li').text()).toBe('Alpha map: 8×8 km')
+        expect(mountWindow().find('.about').exists()).toBe(false)
     })
 
     it('emits select with the map object when a map is clicked', async () => {
         const wrapper = mountWindow()
 
-        await buttonByText(wrapper, 'Beta Ridge').trigger('click')
+        await wrapper.findAll('.maps a')[1].trigger('click')
 
         expect(wrapper.emitted('select')).toEqual([[maps[1]]])
     })

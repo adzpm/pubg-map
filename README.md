@@ -38,6 +38,9 @@ Leaflet do what it does best. Then layer game data on top.
 - **Vehicle spawns layer** — every spawn point from the game files with its chance written on it (vehicles per match
   divided by the group's spawn points); fixed spawns that get a vehicle every match are drawn solid, boats and gliders
   have their own colours. Off by default, `V` toggles it. `task vehicles:build` refreshes the data after a patch.
+- **A page per map** — every map has its own address (`/erangel`, `/taego`, …) that can be linked and bookmarked. The
+  build writes a static page for each with its own title, description, text, link preview image and structured data,
+  plus `sitemap.xml`, `robots.txt` and a real 404 page, so search engines index the maps separately.
 - **PWA offline caching** — `vite-plugin-pwa` precaches the app shell and caches map tiles at runtime, so the maps you
   have opened keep working without a connection.
 - **Smooth zoom** — a custom Leaflet handler replaces the stepped scroll-wheel zoom with a fluent, fractional one.
@@ -90,8 +93,10 @@ flowchart LR
 ├── scripts/fetch-tiles.sh sync tile pyramids from pubg.gs, skips up-to-date maps
 ├── scripts/build-vehicles.mjs vehicle spawn spots and chances from pubg.gs level dumps
 ├── scripts/build-tiles.sh PNG -> WebP pyramid via libvips, idempotent
+├── scripts/build-og.sh    link preview images (web/public/og) from the tiles
 ├── web/                   Vue 3 + Leaflet SPA (Vite, PWA)
 │   ├── public/assets/tiles/  generated tile pyramids, committed
+│   ├── seo/               static page per map, sitemap, robots.txt, 404 (Vite plugin)
 │   ├── src/components/    map viewer with edge labels, floating map window, status bar
 │   ├── src/composables/   leaflet map, floating window, hotkeys, dev mode, dev tools, persistent refs
 │   ├── src/lib/           grid, secrets, tiles, smooth zoom, dev tools
@@ -116,6 +121,8 @@ and a content hash), downloads the full z0–5 pyramid, remaps it from the remot
 layout, checks that every tile is present and is a WebP, and only then swaps the directory in. The hash is written to
 `info.json` as `version`; the app appends it to tile URLs (`?v=<hash>`), so the year-long immutable cache on tiles never
 serves an outdated map. After an update, re-check secret-room coordinates on reworked areas.
+
+The link preview images are cut from the tiles; run `task og:build` after a map changes noticeably.
 
 ## Bringing your own maps
 

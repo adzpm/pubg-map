@@ -9,10 +9,40 @@
         <meta name="apple-mobile-web-app-title" content="PUBG Maps" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/favicon.svg" />
-        <title>adz.pm × PUBG Maps</title>
+        <!-- title, description, canonical, link preview and structured data: written per page by seo/plugin.js -->
+        <!--seo:head-->
+        <!--/seo:head-->
+        <style>
+            /* the text a page shows until the app starts; the app replaces everything inside #app */
+            .intro {
+                max-width: 40rem;
+                margin: 0 auto;
+                padding: 12vh 24px 24px;
+                font:
+                    16px/1.5 system-ui,
+                    sans-serif;
+                color: #e2d6b4;
+            }
+            .intro h1 {
+                margin: 0 0 8px;
+                font-size: 30px;
+                line-height: 1.15;
+            }
+            .intro ul {
+                padding-left: 1.2em;
+            }
+            .intro a {
+                color: #ff7438;
+            }
+            .intro nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px 16px;
+            }
+        </style>
     </head>
     <body>
-        <div id="app"></div>
+        <div id="app"><!--seo:body--><!--/seo:body--></div>
         <script type="module" src="/src/main.js"></script>
     </body>
 </html>

@@ -8,10 +8,12 @@ RUN npm ci
 
 COPY web/index.html web/vite.config.js ./
 COPY web/src ./src
+COPY web/seo ./seo
 
 # only the small public files go into the build: the 12k-tile tree must not be
 # duplicated into dist by vite; tiles are copied straight into the runtime image
-COPY web/public/favicon.svg web/public/robots.txt ./public/
+COPY web/public/favicon.svg ./public/
+COPY web/public/og ./public/og
 
 RUN npm run build
 
