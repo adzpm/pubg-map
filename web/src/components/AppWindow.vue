@@ -8,7 +8,7 @@ import AppKey from '@/components/AppKey.vue'
 const props = defineProps({
   maps: { type: Array, required: true },
   currentMap: { type: Object, required: true },
-  /** What the page is about (lib/seo pageMeta): heading, about and fact lines. */
+  /** What the page is about (lib/seo pageMeta): heading, about, fact lines and sections. */
   page: { type: Object, default: null },
   cursor: { type: Object, required: true },
   secretsCount: { type: Number, default: 0 },
@@ -182,6 +182,12 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
             <template v-if="line.href">{{ line.label }}: </template>{{ line.text }}
           </li>
         </ul>
+        <template v-for="section in page.sections" :key="section.heading">
+          <h2>{{ section.heading }}</h2>
+          <ul>
+            <li v-for="line in section.lines" :key="line.text">{{ line.text }}</li>
+          </ul>
+        </template>
       </details>
 
       <ul class="hints" aria-label="Keyboard shortcuts">
@@ -437,7 +443,25 @@ const cell = computed(() => (props.cursor.visible ? props.cursor.cell : ''))
   color: var(--sand-dim);
 }
 
+.about[open] {
+  max-height: min(46vh, 420px);
+  overflow-y: auto;
+}
+
+.about h2 {
+  margin: 0;
+  padding: 0 12px;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--sand);
+}
+
 .about summary {
+  /* stays in reach while the text scrolls under it */
+  position: sticky;
+  top: 0;
+  background: var(--case);
   padding: 9px 12px;
   cursor: pointer;
   font-size: 12px;

@@ -77,6 +77,12 @@ export const renderBody = (meta) =>
                 : `<li>${escapeHtml(line.text)}</li>`,
         ),
         '</ul>',
+        ...meta.sections.flatMap((section) => [
+            `<h2>${escapeHtml(section.heading)}</h2>`,
+            '<ul>',
+            ...section.lines.map((line) => `<li>${escapeHtml(line.text)}</li>`),
+            '</ul>',
+        ]),
         '<nav aria-label="Maps">',
         link('/', 'All maps', !meta.id),
         ...MAPS.map((m) => link(pathForMap(m.id), m.name, m.id === meta.id)),
@@ -111,6 +117,25 @@ export const renderSitemap = () =>
                 `<image:image><image:loc>${absoluteUrl(p.image)}</image:loc></image:image></url>`,
         ),
         '</urlset>',
+        '',
+    ].join('\n')
+
+/** A plain-text summary for language-model crawlers (llmstxt.org). */
+export const renderLlms = () =>
+    [
+        `# ${SITE_NAME}`,
+        '',
+        `> ${pageMeta(null).about} Free, no sign-up, no ads.`,
+        '',
+        '## Maps',
+        '',
+        ...pages()
+            .filter((p) => p.id)
+            .map((p) => `- [${p.heading}](${absoluteUrl(p.path)}): ${p.description}`),
+        '',
+        '## Data',
+        '',
+        '- Map imagery, secret rooms and vehicle spawn points come from the game files; spawn chances are estimates (vehicles per match divided by spawn points).',
         '',
     ].join('\n')
 

@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { MAPS } from '../src/data/maps.js'
 import { pageMeta } from '../src/lib/seo.js'
-import { renderNotFound, renderPage, renderRobots, renderSitemap } from './render.js'
+import { renderLlms, renderNotFound, renderPage, renderRobots, renderSitemap } from './render.js'
 
 /**
  * Gives every map a static page of its own (dist/<id>/index.html) with its title, description and
@@ -27,6 +27,7 @@ export const seoPages = () => {
             }
             await writeFile(path.join(outDir, 'sitemap.xml'), renderSitemap())
             await writeFile(path.join(outDir, 'robots.txt'), renderRobots())
+            await writeFile(path.join(outDir, 'llms.txt'), renderLlms())
             await writeFile(path.join(outDir, '404.html'), renderNotFound())
         },
     }

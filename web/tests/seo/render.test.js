@@ -8,6 +8,7 @@ import {
     escapeHtml,
     renderBody,
     renderHead,
+    renderLlms,
     renderNotFound,
     renderPage,
     renderRobots,
@@ -56,6 +57,9 @@ describe('renderBody', () => {
             '/',
             ...MAPS.map((m) => `/${m.id}`),
         ])
+        expect([...doc.querySelectorAll('h2')].map((h) => h.textContent)).toEqual(
+            erangel.sections.map((s) => s.heading),
+        )
         expect(doc.querySelector('[aria-current="page"]').getAttribute('href')).toBe('/erangel')
     })
 
@@ -91,6 +95,13 @@ describe('site files', () => {
 
         expect(locs).toEqual(['https://pubg.adz.pm/', ...MAPS.map((m) => `https://pubg.adz.pm/${m.id}`)])
         expect(renderRobots()).toContain('Sitemap: https://pubg.adz.pm/sitemap.xml')
+    })
+
+    it('summarises the site for language-model crawlers', () => {
+        const text = renderLlms()
+
+        expect(text.startsWith('# PUBG Maps')).toBe(true)
+        for (const m of MAPS) expect(text).toContain(`(https://pubg.adz.pm/${m.id})`)
     })
 
     it('keeps the 404 page out of the index and free of the app', () => {

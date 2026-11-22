@@ -77,18 +77,22 @@ describe('AppWindow', () => {
             heading: 'Alpha map',
             about: 'An island.',
             lines: [{ text: '3 secret rooms marked' }],
+            sections: [{ heading: 'Using the map', lines: [{ text: 'Scroll to zoom.' }] }],
         }
         const about = mountWindow({ page }).find('.about')
 
         expect(about.find('h1').text()).toBe('Alpha map')
         expect(about.text()).toContain('An island.')
         expect(about.text()).toContain('3 secret rooms marked')
+        expect(about.find('h2').text()).toBe('Using the map')
+        expect(about.text()).toContain('Scroll to zoom.')
 
         const home = {
             id: null,
             heading: 'Maps',
             about: 'All.',
             lines: [{ href: '/a', label: 'Alpha map', text: '8×8 km' }],
+            sections: [],
         }
         expect(mountWindow({ page: home }).find('.about li').text()).toBe('Alpha map: 8×8 km')
         expect(mountWindow().find('.about').exists()).toBe(false)
