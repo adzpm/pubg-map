@@ -62,12 +62,6 @@ tasks:
     cmds:
       - npm run test
 
-  design:concepts:
-    desc: Serve the UI design concepts (design/concepts) on http://127.0.0.1:5190/design/concepts/
-    deps: [ install ]
-    cmds:
-      - python3 -m http.server 5190 --bind 127.0.0.1
-
   tiles:fetch:
     desc: Download up-to-date map tiles from pubg.gs (task tiles:fetch -- [--force] [map-id ...])
     cmds:

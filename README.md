@@ -89,7 +89,6 @@ flowchart LR
 
 ```
 ├── assets/maps/           source PNGs (not committed; see "Bringing your own maps")
-├── design/concepts/      UI prototypes on real tiles (task design:concepts)
 ├── scripts/fetch-tiles.sh sync tile pyramids from pubg.gs, skips up-to-date maps
 ├── scripts/build-vehicles.mjs vehicle spawn spots and chances from pubg.gs level dumps
 ├── scripts/build-tiles.sh PNG -> WebP pyramid via libvips, idempotent
